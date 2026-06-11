@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { createBrowserClient, PLANURI, areAcces } from '@/lib/supabase'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import type { Utilizator } from '@/lib/supabase'
+// 
 
 const NAV = [
   { href: '/dashboard',            icon: '📊', label: 'Dashboard' },
@@ -13,6 +13,11 @@ const NAV = [
   { href: '/dashboard/wearables',  icon: '⌚', label: 'Wearables' },
   { href: '/dashboard/istoric',    icon: '📈', label: 'Istoric & Trend' },
   { href: '/dashboard/predictie', icon: '🔮', label: 'Predicție Sănătate' },
+    { href: '/dashboard/profil', icon: '', label: 'Profilul meu' },
+    { href: '/dashboard/ziua-perfecta', icon: '☀️', label: 'Ziua Perfecta' },
+    { href: '/dashboard/challenge', icon: '🏆', label: 'Challenge' },
+    { href: '/dashboard/recuperare', icon: '🔄', label: 'Recuperare' },
+    { href: '/dashboard/roata-vietii', icon: '⚖️', label: 'Roata Vietii' },
     { href: '/dashboard/cont',       icon: '👤', label: 'Contul meu' },
 ]
 
@@ -20,7 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const supabase = createBrowserClient()
   const router   = useRouter()
   const pathname = usePathname()
-  const [util, setUtil]   = useState<Utilizator | null>(null)
+  const [util, setUtil]   = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -56,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const logout = async () => { await supabase.auth.signOut(); router.push('/') }
 
-  const planInfo  = util ? PLANURI[util.plan] : PLANURI.free
+  const planInfo  = util ? PLANURI[util.plan as keyof typeof PLANURI] : PLANURI.free
   const analizeRamase = planInfo.analize < 999999 ? Math.max(0, planInfo.analize - (util?.analize_luna || 0)) : null
   const trialActiv = util?.trial_ends_at && new Date(util.trial_ends_at) > new Date()
   const trialZile  = trialActiv ? Math.ceil((new Date(util!.trial_ends_at!).getTime() - Date.now()) / 86400000) : 0
@@ -73,7 +78,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   const Sidebar = () => (
-    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#070d09]/80 border-r border-white/[0.05]">
+    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#070d09]/80 overflow-hidden border-r border-white/[0.05]">
       {/* Logo */}
       <div className="p-5 border-b border-white/[0.05]">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -94,7 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto min-h-0">
         {NAV.map(item => (
           <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
             className={pathname === item.href ? 'nav-item-active' : 'nav-item'}>

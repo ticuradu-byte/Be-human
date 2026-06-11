@@ -40,7 +40,7 @@ export default function DashboardPage() {
     </div>
   )
 
-  const planInfo = PLANURI[util?.plan || 'free']
+  const planInfo = PLANURI[(util?.plan || "free") as keyof typeof PLANURI]
   const scorAzi = jurnal[0]?.scor_wellness as number | undefined
   const scorIeri = jurnal[1]?.scor_wellness as number | undefined
   const trend = (scorAzi && scorIeri) ? scorAzi - scorIeri : null

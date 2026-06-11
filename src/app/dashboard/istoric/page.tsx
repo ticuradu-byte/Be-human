@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
 import Link from 'next/link'
+import DescarcaPDF from '@/components/DescarcaPDF'
 
 function scorColor(s: number) { return s >= 75 ? '#4ade80' : s >= 55 ? '#facc15' : '#f87171' }
 
@@ -223,16 +224,80 @@ export default function IstoricPage() {
                       <div className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1">⚡ Pasul cheie</div>
                       <div className="text-sm text-white/80">{a.rezultat_json.urmatorul_pas}</div>
                     </div>
-                    {/* Top 3 insights */}
-                    {a.rezultat_json.insights?.slice(0, 3).map((ins: any, j: number) => (
-                      <div key={j} className="flex gap-3 p-3 bg-white/[0.02] rounded-xl">
+                    {/* Toate insights */}
+                    {a.rezultat_json.insights?.map((ins: any, j: number) => (
+                      <div key={j} className="flex gap-3 p-3 bg-white/[0.02] rounded-xl border border-white/[0.05]">
                         <span className="text-base flex-shrink-0">{ins.icon}</span>
-                        <div>
+                        <div className="flex-1">
                           <div className="text-xs font-semibold text-white/75 mb-0.5">{ins.titlu}</div>
-                          <div className="text-xs text-white/45 leading-relaxed">{ins.actiune}</div>
+                          <div className="text-xs text-white/45 leading-relaxed">{ins.descriere}</div>
+                          <div className="text-xs text-green-400/70 mt-1">✅ {ins.actiune}</div>
+                          {ins.citare && <div className="text-[10px] text-indigo-400/60 mt-1 italic">📚 {ins.citare}</div>}
                         </div>
                       </div>
                     ))}
+                    {/* Nutritie */}
+                    {a.rezultat_json.nutritie && (
+                      <div className="grid grid-cols-4 gap-2 mt-1">
+                        {[
+                          {l:'Calorii',v:a.rezultat_json.nutritie.calorii_recomandate,c:'#facc15'},
+                          {l:'Proteine',v:a.rezultat_json.nutritie.proteine_g+'g',c:'#f87171'},
+                          {l:'Apă',v:a.rezultat_json.nutritie.apa_litri+'L',c:'#38bdf8'},
+                          {l:'Grăsimi',v:a.rezultat_json.nutritie.grasimi_g+'g',c:'#4ade80'},
+                        ].map((m,idx)=>(
+                          <div key={idx} className="text-center p-2 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                            <div className="text-sm font-bold" style={{color:m.c}}>{m.v}</div>
+                            <div className="text-[9px] text-white/30 mt-0.5">{m.l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Sport + Somn */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {a.rezultat_json.sport?.evaluare_curenta && (
+                        <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.05]">
+                          <div className="text-[10px] font-bold text-white/30 uppercase mb-1">🏃 Sport</div>
+                          <div className="text-xs text-white/55">{a.rezultat_json.sport.evaluare_curenta}</div>
+                          {a.rezultat_json.sport.plan_saptamana && <div className="text-xs text-white/35 mt-1">{a.rezultat_json.sport.plan_saptamana}</div>}
+                        </div>
+                      )}
+                      {a.rezultat_json.somn?.evaluare && (
+                        <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.05]">
+                          <div className="text-[10px] font-bold text-white/30 uppercase mb-1">😴 Somn</div>
+                          <div className="text-xs text-white/55">{a.rezultat_json.somn.evaluare}</div>
+                          {a.rezultat_json.somn.ora_culcare && <div className="text-xs text-green-400/60 mt-1">🕙 {a.rezultat_json.somn.ora_culcare}</div>}
+                        </div>
+                      )}
+                    </div>
+                    {/* Suplimente */}
+                    {a.rezultat_json.suplimente_sigure?.length > 0 && (
+                      <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.05]">
+                        <div className="text-[10px] font-bold text-white/30 uppercase mb-2">💊 Suplimente recomandate</div>
+                        <div className="flex flex-wrap gap-2">
+                          {a.rezultat_json.suplimente_sigure.map((s:any,idx:number)=>(
+                            <span key={idx} className="text-xs px-2 py-1 bg-green-500/[0.08] border border-green-500/[0.15] text-green-400 rounded-full">
+                              {s.supliment} {s.doza}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Anti-aging */}
+                    {a.rezultat_json.anti_aging?.varsta_biologica && (
+                      <div className="p-3 bg-purple-500/[0.06] border border-purple-500/[0.15] rounded-xl">
+                        <div className="text-[10px] font-bold text-purple-400 uppercase mb-1">⏳ Vârstă biologică estimată</div>
+                        <div className="text-sm font-bold text-white/80">{a.rezultat_json.anti_aging.varsta_biologica}</div>
+                      </div>
+                    )}
+                    {/* Mit */}
+                    {a.rezultat_json.mit_demontat && (
+                      <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.05]">
+                        <div className="text-[10px] font-bold text-white/30 uppercase mb-1">🚫 Mit demontat</div>
+                        <div className="text-xs text-white/50">{a.rezultat_json.mit_demontat}</div>
+                      </div>
+                    )}
+                    <p className="text-[10px] text-white/20">{a.rezultat_json.disclaimer}</p>
+                    <div className="flex justify-end pt-2 border-t border-white/[0.06]"><DescarcaPDF analizaId={a.id} tip="analiza" label="📄 Descarcă raport PDF" className="btn-ghost text-xs py-2 px-4" /></div>
                   </div>
                 )}
               </div>

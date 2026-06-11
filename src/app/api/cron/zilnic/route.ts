@@ -23,7 +23,7 @@ function detectCategorii(dateUtilizator: string): string[] {
   if (d.includes('ciclu') || d.includes('menstrual') || d.includes('pms') || d.includes('ovulatie')) cat.push('nutritie', 'sport')
   if (d.includes('anti-aging') || d.includes('longevitate') || d.includes('sauna')) cat.push('antiaging')
   if (d.includes('libido') || d.includes('erectil') || d.includes('sexual')) cat.push('sexual')
-  return cat.length > 0 ? [...new Set(cat)] : ['nutritie', 'sport', 'somn', 'mental']
+  return cat.length > 0 ? Array.from(new Set(cat)) : ['nutritie', 'sport', 'somn', 'mental']
 }
 
 export async function POST(req: Request) {

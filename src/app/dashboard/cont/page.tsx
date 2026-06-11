@@ -73,7 +73,7 @@ export default function ContPage() {
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="text-3xl animate-pulse">🫀</div></div>
 
-  const planCurent = PLANURI[util?.plan || 'free']
+  const planCurent = PLANURI[(util?.plan || "free") as keyof typeof PLANURI]
   const ePlatit    = ['plus', 'pro', 'familie'].includes(util?.plan)
   const trialActiv = util?.trial_ends_at && new Date(util.trial_ends_at) > new Date()
   const trialZile  = trialActiv ? Math.ceil((new Date(util.trial_ends_at).getTime() - Date.now()) / 86400000) : 0

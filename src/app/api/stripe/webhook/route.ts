@@ -96,7 +96,7 @@ export async function POST(req: Request) {
       }
 
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.CheckoutSession
+        const session = event.data.object as Stripe.Checkout.Session
         if (session.metadata?.supabase_user_id) {
           await sb.from('utilizatori').update({ stripe_customer_id: session.customer as string })
             .eq('id', session.metadata.supabase_user_id)

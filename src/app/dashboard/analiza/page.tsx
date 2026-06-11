@@ -1,35 +1,27 @@
 'use client'
-// src/app/dashboard/analiza/page.tsx — v2 cu RAG + knowledge base extins
+// src/app/dashboard/analiza/page.tsx — v2 cu RAG + auto-populare din profil
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { createBrowserClient, PLANURI } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { KNOWLEDGE_BASE_V2 } from '@/lib/knowledge-base-v2'
+import { KNOWLEDGE_BASE_MEDICAL_V3 } from '@/lib/knowledge-base-medical'
 
 // ── SYSTEM PROMPT EXTINS ──────────────────────────────────────────────────────
-const SYSTEM_PROMPT_BASE = `Ești be-human — agentul personal de wellness cu medicina funcțională.
+const SYSTEM_PROMPT_BASE = `Ești be-human, agent wellness funcțional. Analizează datele utilizatorului și returnează DOAR JSON valid, fără markdown, fără text în afara JSON-ului.
 
-BAZA DE CUNOȘTINȚE (16 capitole originale + extensii v2):
-{KB_V2_REZUMAT}
-
-{STUDII_RAG}
-
-{CONTEXT_MEMORIE}
-
-MEDICATIE SI BOLI DECLARATE: {MEDICATIE}
-
+MEDICATIE SI BOLI: {MEDICATIE}
 DATE UTILIZATOR: {DATE}
 
-REGULI:
-- Citezi studii REALE furnizate în secțiunea RAG când faci recomandări (Autor et al., Jurnal, An)
-- Nu inventa studii — "dovezi generale" dacă nu ai studiu specific
-- Adaptezi recomandările la fazele ciclului menstrual dacă e relevantă
-- Verifici recomandările față de medicamentele declarate
-- Alerte medicale automate obligatorii
-- Compari cu istoricul dacă există
+REGULI STRICTE:
+- Returnează DOAR JSON, nimic altceva
+- Texte SCURTE: max 15 cuvinte per câmp string
+- Liste: max 3-4 items
+- Nu repeta date din input
 
-Returnează DOAR JSON valid fără markdown cu toate câmpurile.`
+JSON OBLIGATORIU (completează toate câmpurile):
+{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1","item2"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
 
 // ── TIPURI SURSE EXTINSE ──────────────────────────────────────────────────────
 const TIPURI_SURSE = [
@@ -65,6 +57,84 @@ function prColor(p: string) {
   return { bg: 'rgba(74,222,128,.07)', bd: 'rgba(74,222,128,.18)', tx: '#4ade80' }
 }
 
+// ── HELPER: construiește text profil din profil_complet ───────────────────────
+function buildProfilText(p: any): string {
+  if (!p) return ''
+  const parts: string[] = []
+  if (p.varsta)           parts.push(p.varsta + ' ani')
+  if (p.data_nastere) {
+    const age = new Date().getFullYear() - new Date(p.data_nastere).getFullYear()
+    if (age > 0 && age < 120) parts.push(age + ' ani')
+  }
+  if (p.sex)              parts.push(p.sex === 'M' ? 'Masculin' : p.sex === 'F' ? 'Feminin' : p.sex)
+  if (p.greutate_kg)      parts.push(p.greutate_kg + 'kg')
+  if (p.inaltime_cm)      parts.push(p.inaltime_cm + 'cm')
+  if (p.bmi)              parts.push('BMI: ' + p.bmi)
+  if (p.activitate)       parts.push('Activitate: ' + p.activitate)
+  if (p.obiective?.length) parts.push('Obiective: ' + (Array.isArray(p.obiective) ? p.obiective.join(', ') : p.obiective))
+  if (p.greutate_target)  parts.push('Greutate țintă: ' + p.greutate_target + 'kg')
+  return parts.join(', ')
+}
+
+// ── HELPER: construiește surse din profil_complet ─────────────────────────────
+function buildSurseFromProfil(p: any): Record<string, string> {
+  if (!p) return {}
+  const surse: Record<string, string> = {}
+
+  // MEDICATIE & BOLI
+  const med: string[] = []
+  const conditii = p.conditii_medicale || p.conditii || p.boli || []
+  const medicamente = p.medicamente || p.medicatie || ''
+  if (conditii?.length) med.push('Condiții diagnosticate: ' + (Array.isArray(conditii) ? conditii.join(', ') : conditii))
+  if (medicamente) med.push('Medicamente: ' + medicamente)
+  if (med.length) surse.medicamente = med.join('\n')
+
+  // SUPLIMENTE
+  const suplimente = p.suplimente || []
+  if (suplimente.length > 0) {
+    surse.suplimente = suplimente
+      .filter((s: any) => s.nume)
+      .map((s: any) => s.nume + ' ' + (s.doza || '') + (s.timing ? ' — ' + s.timing : ''))
+      .join('\n')
+  }
+
+  // VITALE — tensiune, puls, spo2
+  const vitale: string[] = []
+  if (p.tensiune_sistolica && p.tensiune_diastolica)
+    vitale.push('Tensiune: ' + p.tensiune_sistolica + '/' + p.tensiune_diastolica + ' mmHg')
+  if (p.puls_repaus) vitale.push('Puls repaus: ' + p.puls_repaus + ' bpm')
+  if (p.hr_repaus)   vitale.push('HR repaus: ' + p.hr_repaus + ' bpm')
+  if (p.spo2)        vitale.push('SpO2: ' + p.spo2 + '%')
+  if (vitale.length) surse.vitale = vitale.join('\n')
+
+  // ANALIZE — PDF/text
+  const analizeText = p.analize_text || ''
+  if (analizeText) surse.analize = analizeText.slice(0, 1200)
+
+  // STIL VIATA → note
+  const note: string[] = []
+  if (p.fumat)     note.push('Fumat: ' + p.fumat)
+  if (p.alcool)    note.push('Alcool: ' + p.alcool)
+  if (p.dieta)     note.push('Dietă: ' + p.dieta)
+  if (p.tip_dieta) note.push('Dietă: ' + p.tip_dieta)
+  if (p.somn_ore)  note.push('Somn: ' + p.somn_ore + 'h/noapte')
+  if (p.stres)     note.push('Nivel stres: ' + p.stres)
+  if (p.alergii?.length) note.push('Alergii: ' + p.alergii.join(', '))
+  if (p.alte_alergii) note.push('Alte alergii: ' + p.alte_alergii)
+  if (note.length) surse.altele = note.join('\n')
+
+  // CICLU MENSTRUAL
+  if (p.ciclu_ziua || p.ciclu_durata) {
+    const ciclu: string[] = []
+    if (p.ciclu_ziua)     ciclu.push('Ziua ciclului: ' + p.ciclu_ziua)
+    if (p.ciclu_durata)   ciclu.push('Durata ciclu: ' + p.ciclu_durata + ' zile')
+    if (p.ciclu_simptome) ciclu.push('Simptome: ' + p.ciclu_simptome)
+    surse.ciclu = ciclu.join('\n')
+  }
+
+  return surse
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 export default function AnalizaPageV2() {
   const supabase = createBrowserClient()
@@ -83,13 +153,32 @@ export default function AnalizaPageV2() {
   const [util, setUtil]               = useState<any>(null)
   const [studiiGasite, setStudiiGasite] = useState(0)
   const [usaRAG, setUsaRAG]           = useState(false)
+  const [profilIncarcat, setProfilIncarcat] = useState(false)
 
+  // ── AUTO-POPULARE DIN PROFIL ─────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        supabase.from('utilizatori').select('*').eq('id', user.id).single()
-          .then(({ data }) => setUtil(data))
-      }
+      if (!user) return
+
+      supabase.from('utilizatori').select('*').eq('id', user.id).single()
+        .then(({ data }) => {
+          setUtil(data)
+
+          if (data?.profil_complet) {
+            const p = data.profil_complet
+
+            // Auto-populare câmp profil text
+            const profilText = buildProfilText(p)
+            if (profilText) setProfil(profilText)
+
+            // Auto-populare surse
+            const surseNoi = buildSurseFromProfil(p)
+            if (Object.keys(surseNoi).length > 0) {
+              setSurse(surseNoi)
+              setProfilIncarcat(true)
+            }
+          }
+        })
     })
   }, [])
 
@@ -129,7 +218,7 @@ export default function AnalizaPageV2() {
   }
 
   const analizeaza = async () => {
-    if (util?.plan === 'free' && (util?.analize_luna || 0) >= 2) {
+    if (util?.plan === 'free' && (util?.analize_luna || 0) >= 10) {
       router.push('/dashboard/cont'); return
     }
 
@@ -145,13 +234,11 @@ export default function AnalizaPageV2() {
     const iv = setInterval(() => { mi = (mi+1)%msgs.length; setLoadMsg(msgs[mi]) }, 2200)
 
     try {
-      // Construiesc contextul complet
       const ctx = [
         profil && `PROFIL: ${profil}`,
-        ...TIPURI_SURSE.filter(s => surse[s.key]?.trim()).map(s => `${s.label.toUpperCase()}:\n${surse[s.key]}`),
+        ...TIPURI_SURSE.filter(s => surse[s.key]?.trim()).map(s => `${s.label.toUpperCase()}:\n${surse[s.key].slice(0, 600)}`),
       ].filter(Boolean).join('\n\n')
 
-      // Încerc RAG dacă OPENAI_API_KEY e disponibil
       let studiiContext = ''
       let memorieContext = ''
 
@@ -185,36 +272,31 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
           }
         }
       } catch {
-        // RAG indisponibil — continuă fără
         setUsaRAG(false)
       }
 
-      // Construiesc system prompt-ul complet
       const systemPrompt = SYSTEM_PROMPT_BASE
-        .replace('{KB_V2_REZUMAT}', KNOWLEDGE_BASE_V2.slice(0, 3000)) // primele 3000 chars
-        .replace('{STUDII_RAG}', studiiContext || 'RAG indisponibil — folosesc cunoștințe generale.')
-        .replace('{CONTEXT_MEMORIE}', memorieContext || 'Prima analiză sau fără istoric disponibil.')
         .replace('{MEDICATIE}', surse.medicamente || 'Nicio medicație declarată.')
         .replace('{DATE}', ctx)
 
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/analiza', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 5000,
           system: systemPrompt,
           messages: [{ role: 'user', content: 'Analizează complet datele mele și returnează JSON.' }],
         }),
       })
 
       const data = await res.json()
-      const raw = data.content?.[0]?.text || ''
-      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
+      const parsed = data.result || JSON.parse((data.content?.[0]?.text || "{}").replace(/```json|```/g, "").trim())
+
+
       setResult(parsed)
       setActiveTab('overview')
 
-      // Salvează în Supabase
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await supabase.from('analize_bh').insert({
@@ -271,7 +353,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       </div>
 
-      {/* Alerte */}
       {result.alerte_medicale?.length > 0 && (
         <div className="space-y-2">
           {result.alerte_medicale.map((a: any, i: number) => (
@@ -295,7 +376,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* Hero */}
       <div className="card-green p-6">
         <div className="flex items-center gap-5 flex-wrap mb-4">
           <div className="relative flex-shrink-0">
@@ -337,7 +417,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1.5 overflow-x-auto pb-1">
         {TABS_RESULT.map(([k, l]) => (
           <button key={k} onClick={() => setActiveTab(k as any)}
@@ -347,7 +426,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         ))}
       </div>
 
-      {/* OVERVIEW */}
       {activeTab==='overview' && (
         <div className="space-y-3 fade-in">
           {result.insights?.slice(0, 3).map((ins: any, i: number) => {
@@ -372,7 +450,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* INSIGHTS */}
       {activeTab==='insights' && (
         <div className="space-y-2 fade-in">
           {result.insights?.map((ins: any, i: number) => {
@@ -416,7 +493,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* NUTRIȚIE */}
       {activeTab==='nutritie' && result.nutritie && (
         <div className="space-y-3 fade-in">
           <div className="card p-5">
@@ -463,7 +539,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* CICLU MENSTRUAL */}
       {activeTab==='ciclu' && (
         <div className="space-y-3 fade-in">
           {result.ciclu_menstrual ? (
@@ -505,7 +580,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* SUPLIMENTE */}
       {activeTab==='suplimente' && (
         <div className="space-y-3 fade-in">
           {result.suplimente_sigure?.length > 0 && (
@@ -542,7 +616,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* HORMONI */}
       {activeTab==='hormoni' && result.hormoni && (
         <div className="space-y-3 fade-in">
           <div className="card p-5">
@@ -558,7 +631,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* SPORT */}
       {activeTab==='sport' && result.sport && (
         <div className="space-y-2 fade-in">
           {[{icon:'📊',l:'Evaluare',v:result.sport.evaluare_curenta},{icon:'🎯',l:'Zona HR',v:result.sport.zona_recomandata},{icon:'📅',l:'Plan săptămânal',v:result.sport.plan_saptamana},{icon:'😴',l:'Recuperare',v:result.sport.recuperare}].filter(i=>i.v).map((item,i) => (
@@ -570,7 +642,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* SOMN */}
       {activeTab==='somn' && result.somn && (
         <div className="space-y-3 fade-in">
           <div className="card p-5">
@@ -589,7 +660,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* MENTAL */}
       {activeTab==='mental' && result.sanatate_mintala && (
         <div className="space-y-3 fade-in">
           <div className="card p-5">
@@ -607,7 +677,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* SEXUAL */}
       {activeTab==='sex' && result.sanatate_sexuala && (
         <div className="space-y-3 fade-in">
           <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs text-white/30 leading-relaxed">
@@ -625,7 +694,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* ANTI-AGING */}
       {activeTab==='antiaging' && result.anti_aging && (
         <div className="space-y-3 fade-in">
           <div className="bg-purple-500/[0.06] border border-purple-500/[0.18] rounded-xl p-5">
@@ -649,7 +717,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* MIT */}
       {activeTab==='mit' && result.mit_demontat && (
         <div className="card p-5 fade-in">
           <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-3">🚫 Mitul demolat</div>
@@ -657,7 +724,6 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         </div>
       )}
 
-      {/* Disclaimer */}
       <div className="card p-4">
         <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">⚕️ Disclaimer</div>
         <p className="text-xs text-white/25 leading-relaxed">{result.disclaimer} Urgențe: <strong className="text-white/40">112</strong></p>
@@ -677,15 +743,26 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
           className="btn-ghost text-xs py-2 px-4">✨ Exemplu</button>
       </div>
 
-      {/* Limite plan */}
-      {util?.plan === 'free' && (
-        <div className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/[0.07] rounded-xl text-sm">
-          <span className="text-white/40">{util?.analize_luna || 0}/2 analize luna aceasta</span>
-          {(util?.analize_luna || 0) >= 2 && <Link href="/dashboard/cont" className="text-green-400 text-xs ml-auto">Upgrade →</Link>}
+      {/* Banner profil auto-incarcat */}
+      {profilIncarcat && (
+        <div className="flex items-center gap-3 p-3 bg-green-500/[0.08] border border-green-500/[0.2] rounded-xl">
+          <span className="text-green-400 text-lg">✅</span>
+          <div className="flex-1">
+            <div className="text-xs font-semibold text-green-400">Profil încărcat automat</div>
+            <div className="text-xs text-white/40 mt-0.5">Datele din Profilul meu au fost preluate. Poți adăuga date suplimentare mai jos.</div>
+          </div>
+          <Link href="/dashboard/profil" className="text-xs text-white/30 hover:text-white/60 flex-shrink-0">Editează →</Link>
         </div>
       )}
 
-      {/* Profil */}
+      {util?.plan === 'free' && (
+        <div className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/[0.07] rounded-xl text-sm">
+          <span className="text-white/40">{util?.analize_luna || 0}/10 analize luna aceasta</span>
+          {(util?.analize_luna || 0) >= 10 && <Link href="/dashboard/cont" className="text-green-400 text-xs ml-auto">Upgrade →</Link>}
+        </div>
+      )}
+
+      {/* Profil text */}
       <div className="card p-4">
         <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2 block">👤 Profilul tău</label>
         <textarea rows={2} value={profil} onChange={e => setProfil(e.target.value)}
@@ -749,7 +826,7 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
       </div>
 
       <button onClick={analizeaza}
-        disabled={loading || !hasDate || (util?.plan === 'free' && (util?.analize_luna || 0) >= 2)}
+        disabled={loading || !hasDate || (util?.plan === 'free' && (util?.analize_luna || 0) >= 10)}
         className="btn-green w-full py-4 text-base">
         {loading ? `⏳ ${loadMsg}` : '🌿 Analizează cu Medicina Funcțională v2'}
       </button>
