@@ -8,6 +8,52 @@ import Link from 'next/link'
 import { KNOWLEDGE_BASE_V2 } from '@/lib/knowledge-base-v2'
 import { KNOWLEDGE_BASE_MEDICAL_V3 } from '@/lib/knowledge-base-medical'
 
+
+function parseCSVUniversal(csvText: string): string {
+  const lines = csvText.split('\n').filter(l => l.trim())
+  if (lines.length < 2) return csvText.slice(0, 600)
+  const headers = lines[0].split(/[,;\t]/).map(h => h.trim().toLowerCase().replace(/['"]/g, ''))
+  const COLOANE: Record<string, string> = {
+    'hrv':'HRV','heart_rate_variability':'HRV','hrv_avg':'HRV',
+    'steps':'Pași','step_count':'Pași','pasi':'Pași',
+    'sleep':'Somn','sleep_duration':'Somn','total_sleep':'Somn',
+    'spo2':'SpO2','blood_oxygen':'SpO2','oxygen':'SpO2',
+    'heart_rate':'HR','hr':'HR','pulse':'HR','resting_hr':'HR repaus',
+    'calories':'Calorii','kcal':'Calorii','active_calories':'Calorii active',
+    'stress':'Stres','stress_score':'Stres',
+    'weight':'Greutate','body_weight':'Greutate',
+    'temperature':'Temperatură','skin_temp':'Temp piele',
+    'vo2max':'VO2max','vo2_max':'VO2max',
+    'body_fat':'Body Fat %','fat_percentage':'Body Fat %',
+    'deep_sleep':'Somn profund','rem_sleep':'Somn REM',
+    'readiness':'Readiness','recovery':'Recovery',
+  }
+  const relevant: {idx: number, label: string}[] = []
+  headers.forEach((h, idx) => {
+    const label = COLOANE[h] || COLOANE[h.replace(/ /g,'_')]
+    if (label) relevant.push({ idx, label })
+  })
+  if (relevant.length === 0) return csvText.slice(0, 600)
+  const sums: Record<string, {sum: number, count: number}> = {}
+  relevant.forEach(r => { sums[r.label] = { sum: 0, count: 0 } })
+  lines.slice(1, 31).forEach(line => {
+    const cols = line.split(/[,;\t]/).map(c => c.trim().replace(/['"]/g,''))
+    relevant.forEach(r => {
+      const val = parseFloat(cols[r.idx])
+      if (!isNaN(val) && val > 0) { sums[r.label].sum += val; sums[r.label].count++ }
+    })
+  })
+  const results: string[] = []
+  relevant.forEach(r => {
+    const d = sums[r.label]
+    if (d.count > 0) {
+      const avg = Math.round((d.sum/d.count)*10)/10
+      results.push(`${r.label}: ${avg} (medie ${d.count} zile)`)
+    }
+  })
+  return results.length > 0 ? 'Date importate din dispozitiv:\n' + results.join('\n') : csvText.slice(0, 600)
+}
+
 // ── SYSTEM PROMPT EXTINS ──────────────────────────────────────────────────────
 const SYSTEM_PROMPT_BASE = `Ești be-human, agent wellness funcțional. Analizează datele utilizatorului și returnează DOAR JSON valid, fără markdown, fără text în afara JSON-ului.
 
@@ -211,7 +257,12 @@ export default function AnalizaPageV2() {
         setSurse(p => ({ ...p, [sursaActiva]: txt.trim() }))
       } else {
         const reader = new FileReader()
-        reader.onload = ev => setSurse(p => ({ ...p, [sursaActiva]: ev.target?.result as string }))
+        reader.onload = ev => {
+          const text = ev.target?.result as string
+          const ext = file.name.split('.').pop()?.toLowerCase()
+          const parsed = (ext === 'csv' || ext === 'txt') ? parseCSVUniversal(text) : text
+          setSurse(p => ({ ...p, [sursaActiva]: parsed }))
+        }
         reader.readAsText(file)
       }
     } finally { setPdfLoading(false); e.target.value = '' }
@@ -793,7 +844,7 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
             <div className="flex items-center justify-between mb-2">
               <label className="text-[10px] font-bold text-white/30 uppercase tracking-wider">{s.icon} {s.label}</label>
               <div className="flex gap-2">
-                <input ref={fileRef} type="file" accept=".pdf,.txt,.csv" className="hidden" onChange={handleFile} />
+                <input ref={fileRef} type="file" accept=".pdf,.txt,.csv,.json" className="hidden" onChange={handleFile} />
                 <button onClick={() => fileRef.current?.click()} disabled={pdfLoading} className="text-xs text-white/30 hover:text-white/60">
                   {pdfLoading ? '⏳' : '📎 Upload'}
                 </button>
