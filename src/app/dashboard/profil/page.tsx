@@ -83,7 +83,14 @@ const WEARABLES_LISTA = [
   { id: 'googlefit',   icon: '🔵', label: 'Google Fit',         desc: 'Sincronizare automată Android',      tip: 'android' },
   { id: 'healthconn',  icon: '❤️', label: 'Health Connect',     desc: 'Hub central toate dispozitivele',    tip: 'android' },
   { id: 'strava',      icon: '🟠', label: 'Strava',             desc: 'Alergare, ciclism, activități',      tip: 'soon' },
-  { id: 'myfitnesspal',icon: '🔵', label: 'MyFitnessPal',       desc: 'Nutriție și calorii',                tip: 'soon' },
+  { id: 'myfitnesspal', icon: '🔵', label: 'MyFitnessPal',      desc: 'Nutriție și calorii',                tip: 'csv' },
+  { id: 'eattrack',     icon: '🥗', label: 'Eat & Track',         desc: 'Export CSV → Import în analiză',     tip: 'csv' },
+  { id: 'strava2',      icon: '🟠', label: 'Strava',              desc: 'Export GPX/CSV → Import analiză',    tip: 'csv' },
+  { id: 'applehealth',  icon: '🍎', label: 'Apple Health/Fitness',desc: 'Export XML → Import în analiză',     tip: 'csv' },
+  { id: 'whoop',        icon: '💪', label: 'WHOOP',               desc: 'Export CSV din app WHOOP',           tip: 'csv' },
+  { id: 'hevy',         icon: '🏋️', label: 'Hevy',                desc: 'Export CSV antrenamente',            tip: 'csv' },
+  { id: 'runalyze',     icon: '🏃', label: 'Runalyze',            desc: 'Export CSV activități',              tip: 'csv' },
+  { id: 'fitbit2',      icon: '💚', label: 'Fitbit',              desc: 'Export CSV din Fitbit Dashboard',    tip: 'csv' },
   { id: 'whoop',   icon: '💪', label: 'WHOOP',           desc: 'În curând',                     tip: 'soon' },
 ]
 
