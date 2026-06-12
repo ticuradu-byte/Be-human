@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // src/app/api/rag/route.ts
 // RAG endpoint — caută studii relevante și generează răspuns cu citări reale
 
