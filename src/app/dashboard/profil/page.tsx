@@ -692,6 +692,9 @@ export default function ProfilPage() {
                 {w.tip === 'csv' && (
                   <a href="/dashboard/analiza" className="btn-ghost text-xs py-2 px-4 flex-shrink-0">📎 Import CSV →</a>
                 )}
+                {w.tip === 'csv' && (
+                  <a href="/dashboard/analiza" className="btn-ghost text-xs py-2 px-4 flex-shrink-0">📎 Import CSV →</a>
+                )}
               </div>
               {w.id === 'garmin' && showGarminForm && !wearableStatus.garmin && (
                 <div className="mt-3 pt-3 border-t border-white/[0.07] space-y-2">
