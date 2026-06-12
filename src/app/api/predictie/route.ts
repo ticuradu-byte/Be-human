@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // src/app/api/pdf/route.ts
 // Generator raport PDF be-human — pentru medic sau arhivă personală
 // Folosește jsPDF (client-side) sau html-pdf-node (server-side)

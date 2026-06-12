@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // src/app/api/stripe/checkout/route.ts
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
