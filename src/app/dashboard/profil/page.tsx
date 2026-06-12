@@ -76,7 +76,14 @@ const WEARABLES_LISTA = [
   { id: 'huawei',  icon: '🔴', label: 'Huawei Health',   desc: 'Via Health Connect Android',    tip: 'android' },
   { id: 'polar',   icon: '❄️', label: 'Polar Flow',      desc: 'În curând',                     tip: 'soon' },
   { id: 'fitbit',  icon: '💚', label: 'Fitbit',          desc: 'În curând',                     tip: 'soon' },
-  { id: 'withings',icon: '⚖️', label: 'Withings',        desc: 'Cântar + tensiometru smart',    tip: 'soon' },
+  { id: 'withings',   icon: '⚖️', label: 'Withings',          desc: 'Cântar + tensiometru smart',         tip: 'soon' },
+  { id: 'fitcloudpro', icon: '🟠', label: 'FitCloudPro',       desc: 'Via Health Connect Android',         tip: 'android' },
+  { id: 'luckring',    icon: '💚', label: 'LuckRing',           desc: 'Export CSV → Import în analiză',     tip: 'csv' },
+  { id: 'xiaomi',      icon: '🟡', label: 'Xiaomi / Mi Band',   desc: 'Via Health Connect Android',         tip: 'android' },
+  { id: 'googlefit',   icon: '🔵', label: 'Google Fit',         desc: 'Sincronizare automată Android',      tip: 'android' },
+  { id: 'healthconn',  icon: '❤️', label: 'Health Connect',     desc: 'Hub central toate dispozitivele',    tip: 'android' },
+  { id: 'strava',      icon: '🟠', label: 'Strava',             desc: 'Alergare, ciclism, activități',      tip: 'soon' },
+  { id: 'myfitnesspal',icon: '🔵', label: 'MyFitnessPal',       desc: 'Nutriție și calorii',                tip: 'soon' },
   { id: 'whoop',   icon: '💪', label: 'WHOOP',           desc: 'În curând',                     tip: 'soon' },
 ]
 
@@ -682,6 +689,9 @@ export default function ProfilPage() {
                 )}
                 {w.tip === 'login' && wearableStatus[w.id] && <span className="text-green-400 text-lg">✓</span>}
                 {w.tip === 'android' && <span className="text-xs text-white/25 flex-shrink-0">Via app Android</span>}
+                {w.tip === 'csv' && (
+                  <a href="/dashboard/analiza" className="btn-ghost text-xs py-2 px-4 flex-shrink-0">📎 Import CSV →</a>
+                )}
               </div>
               {w.id === 'garmin' && showGarminForm && !wearableStatus.garmin && (
                 <div className="mt-3 pt-3 border-t border-white/[0.07] space-y-2">
