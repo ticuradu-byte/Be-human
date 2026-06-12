@@ -1,11 +1,11 @@
 'use client'
 // src/app/auth/login/page.tsx
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { createBrowserClient } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginContent() {
   const supabase = createBrowserClient()
   const router = useRouter()
   const params = useSearchParams()
@@ -112,5 +112,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a]" />}>
+      <LoginContent />
+    </Suspense>
   )
 }
