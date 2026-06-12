@@ -706,6 +706,13 @@ export default function ProfilPage() {
                 {w.tip === 'oauth_gfit' && wearableStatus[w.id] && (
                   <span className="text-green-400 text-lg">✓</span>
                 )}
+                {w.tip === 'oauth_gfit' && !wearableStatus[w.id] && (
+                  <button onClick={() => window.location.href = `/api/wearables/google-fit?user_id=${userId}`}
+                    className="btn-green text-xs py-2 px-4 flex-shrink-0">Conectează →</button>
+                )}
+                {w.tip === 'oauth_gfit' && wearableStatus[w.id] && (
+                  <span className="text-green-400 text-lg">✓</span>
+                )}
                 {w.tip === 'csv' && (
                   <a href="/dashboard/analiza" className="btn-ghost text-xs py-2 px-4 flex-shrink-0">📎 Import CSV →</a>
                 )}
