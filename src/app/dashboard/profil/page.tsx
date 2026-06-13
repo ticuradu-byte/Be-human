@@ -69,29 +69,29 @@ const OBIECTIVE = [
 ]
 
 const WEARABLES_LISTA = [
-  { id: 'oura',    icon: '💍', label: 'Oura Ring',       desc: 'HRV, somn, temperatură',        tip: 'oauth' },
-  { id: 'garmin',  icon: '⌚', label: 'Garmin Connect',  desc: 'Pași, VO2max, stres, somn',     tip: 'login' },
-  { id: 'amazfit', icon: '📱', label: 'Zepp / Amazfit',  desc: 'Via Health Connect Android',    tip: 'android' },
-  { id: 'samsung', icon: '💙', label: 'Samsung Health',  desc: 'Via Health Connect Android',    tip: 'android' },
-  { id: 'huawei',  icon: '🔴', label: 'Huawei Health',   desc: 'Via Health Connect Android',    tip: 'android' },
-  { id: 'polar',   icon: '❄️', label: 'Polar Flow',      desc: 'În curând',                     tip: 'soon' },
-  { id: 'fitbit',  icon: '💚', label: 'Fitbit',          desc: 'În curând',                     tip: 'soon' },
-  { id: 'withings',   icon: '⚖️', label: 'Withings',          desc: 'Cântar + tensiometru smart',         tip: 'soon' },
-  { id: 'fitcloudpro', icon: '🟠', label: 'FitCloudPro',       desc: 'Via Health Connect Android',         tip: 'android' },
-  { id: 'luckring',    icon: '💚', label: 'LuckRing',           desc: 'Export CSV → Import în analiză',     tip: 'csv' },
-  { id: 'xiaomi',      icon: '🟡', label: 'Xiaomi / Mi Band',   desc: 'Via Health Connect Android',         tip: 'android' },
-  { id: 'googlefit',   icon: '🔵', label: 'Google Fit',         desc: 'Sincronizare automată Android',      tip: 'android' },
-  { id: 'healthconn',  icon: '❤️', label: 'Health Connect',     desc: 'Hub central toate dispozitivele',    tip: 'android' },
-  { id: 'strava',      icon: '🟠', label: 'Strava',             desc: 'Alergare, ciclism, activități',      tip: 'soon' },
-  { id: 'myfitnesspal', icon: '🔵', label: 'MyFitnessPal',      desc: 'Nutriție și calorii',                tip: 'csv' },
-  { id: 'eattrack',     icon: '🥗', label: 'Eat & Track',         desc: 'Export CSV → Import în analiză',     tip: 'csv' },
-  { id: 'strava2',      icon: '🟠', label: 'Strava',              desc: 'Export GPX/CSV → Import analiză',    tip: 'csv' },
-  { id: 'applehealth',  icon: '🍎', label: 'Apple Health/Fitness',desc: 'Export XML → Import în analiză',     tip: 'csv' },
-  { id: 'whoop',        icon: '💪', label: 'WHOOP',               desc: 'Export CSV din app WHOOP',           tip: 'csv' },
-  { id: 'hevy',         icon: '🏋️', label: 'Hevy',                desc: 'Export CSV antrenamente',            tip: 'csv' },
-  { id: 'runalyze',     icon: '🏃', label: 'Runalyze',            desc: 'Export CSV activități',              tip: 'csv' },
-  { id: 'fitbit2',      icon: '💚', label: 'Fitbit',              desc: 'Export CSV din Fitbit Dashboard',    tip: 'csv' },
-  { id: 'whoop',   icon: '💪', label: 'WHOOP',           desc: 'În curând',                     tip: 'soon' },
+  // ── OAuth Direct ─────────────────────────────────────────────────────────
+  { id: 'oura',       icon: '💍', label: 'Oura Ring',          desc: 'HRV, somn, temperatură, readiness',  tip: 'oauth' },
+  { id: 'garmin',     icon: '⌚', label: 'Garmin Connect',     desc: 'Pași, VO2max, stres, somn',          tip: 'login' },
+  { id: 'googlefit',  icon: '🔵', label: 'Google Fit',         desc: 'Pași, calorii, somn, activități',    tip: 'oauth_gfit' },
+  { id: 'healthconn', icon: '❤️', label: 'Health Connect',     desc: 'Hub Android — toate dispozitivele',  tip: 'oauth_gfit' },
+  // ── CSV Import ───────────────────────────────────────────────────────────
+  { id: 'amazfit',    icon: '📱', label: 'Zepp / Amazfit',     desc: 'Export CSV din app Zepp',            tip: 'csv' },
+  { id: 'samsung',    icon: '💙', label: 'Samsung Health',     desc: 'Export CSV din Samsung Health',      tip: 'csv' },
+  { id: 'huawei',     icon: '🔴', label: 'Huawei Health',      desc: 'Export CSV din Huawei Health',       tip: 'csv' },
+  { id: 'xiaomi',     icon: '🟡', label: 'Xiaomi / Mi Band',   desc: 'Export CSV din Mi Fitness',          tip: 'csv' },
+  { id: 'fitcloudpro',icon: '🟠', label: 'FitCloudPro',        desc: 'Export CSV din FitCloudPro',         tip: 'csv' },
+  { id: 'luckring',   icon: '💚', label: 'LuckRing',           desc: 'Export CSV din LuckRing app',        tip: 'csv' },
+  { id: 'applehealth',icon: '🍎', label: 'Apple Health',       desc: 'Export XML din Health app iOS',      tip: 'csv' },
+  { id: 'fitbit',     icon: '💚', label: 'Fitbit',             desc: 'Export CSV din fitbit.com',          tip: 'csv' },
+  { id: 'whoop',      icon: '💪', label: 'WHOOP',              desc: 'Export CSV din app WHOOP',           tip: 'csv' },
+  { id: 'strava',     icon: '🟠', label: 'Strava',             desc: 'Export CSV din strava.com',          tip: 'csv' },
+  { id: 'myfitnesspal',icon: '🔵', label: 'MyFitnessPal',      desc: 'Export CSV din MFP',                 tip: 'csv' },
+  { id: 'eattrack',   icon: '🥗', label: 'Eat & Track',        desc: 'Export CSV din Eat & Track',         tip: 'csv' },
+  { id: 'hevy',       icon: '🏋️', label: 'Hevy',               desc: 'Export CSV antrenamente',            tip: 'csv' },
+  { id: 'runalyze',   icon: '🏃', label: 'Runalyze',           desc: 'Export CSV activități',              tip: 'csv' },
+  // ── În curând ────────────────────────────────────────────────────────────
+  { id: 'withings',   icon: '⚖️', label: 'Withings',           desc: 'Cântar + tensiometru smart',         tip: 'soon' },
+  { id: 'polar',      icon: '❄️', label: 'Polar Flow',         desc: 'În curând',                          tip: 'soon' },
 ]
 
 const SECTIUNI = [
