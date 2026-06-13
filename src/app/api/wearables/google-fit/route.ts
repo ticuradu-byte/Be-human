@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const CLIENT_ID = process.env.GOOGLE_FIT_CLIENT_ID || '173638007310-2tja0059n3iah049l10jr5853etf6r1k.apps.googleusercontent.com'
 const CLIENT_SECRET = process.env.GOOGLE_FIT_CLIENT_SECRET!
-const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback/google-fit'
+const REDIRECT_URI = 'https://be-human-gamma.vercel.app/auth/callback/google-fit'
 
 const SCOPES = [
   'https://www.googleapis.com/auth/fitness.activity.read',
