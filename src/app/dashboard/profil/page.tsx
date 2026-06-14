@@ -73,7 +73,7 @@ const WEARABLES_LISTA = [
   { id: 'oura',       icon: '💍', label: 'Oura Ring',          desc: 'HRV, somn, temperatură, readiness',  tip: 'oauth' },
   { id: 'garmin',     icon: '⌚', label: 'Garmin Connect',     desc: 'Pași, VO2max, stres, somn',          tip: 'login' },
   { id: 'googlefit',  icon: '🔵', label: 'Google Fit',         desc: 'Pași, calorii, somn, activități',    tip: 'oauth_gfit' },
-  { id: 'healthconn', icon: '❤️', label: 'Health Connect',     desc: 'Hub Android — toate dispozitivele',  tip: 'oauth_gfit' },
+  { id: 'healthconn', icon: '❤️', label: 'Health Connect',     desc: 'Hub Android — toate dispozitivele',  tip: 'android_info' },
   // ── CSV Import ───────────────────────────────────────────────────────────
   { id: 'amazfit',    icon: '📱', label: 'Zepp / Amazfit',     desc: 'Export CSV din app Zepp',            tip: 'csv' },
   { id: 'samsung',    icon: '💙', label: 'Samsung Health',     desc: 'Export CSV din Samsung Health',      tip: 'csv' },
@@ -704,7 +704,10 @@ export default function ProfilPage() {
                     className="btn-green text-xs py-2 px-4 flex-shrink-0">Conectează →</button>
                 )}
                 {w.tip === 'oauth_gfit' && wearableStatus[w.id] && (
-                  <span className="text-green-400 text-lg">✓</span>
+                  <span className="text-green-400 text-sm font-medium">✅ Conectat</span>
+                )}
+                {w.tip === 'android_info' && (
+                  <span className="text-white/25 text-xs">Via Google Fit</span>
                 )}
                 {w.tip === 'oauth_gfit' && !wearableStatus[w.id] && (
                   <button onClick={() => window.location.href = `/api/wearables/google-fit?user_id=${userId}`}
