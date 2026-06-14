@@ -7,18 +7,18 @@ import Link from 'next/link'
 // 
 
 const NAV = [
-  { href: '/dashboard',            icon: '📊', label: 'Dashboard' },
-  { href: '/dashboard/analiza',    icon: '🌿', label: 'Analiză Nouă' },
-  { href: '/dashboard/jurnal',     icon: '📓', label: 'Jurnal Zilnic' },
-  { href: '/dashboard/wearables',  icon: '⌚', label: 'Wearables' },
-  { href: '/dashboard/istoric',    icon: '📈', label: 'Istoric & Trend' },
-  { href: '/dashboard/predictie', icon: '🔮', label: 'Predicție Sănătate' },
-    { href: '/dashboard/profil', icon: '', label: 'Profilul meu' },
-    { href: '/dashboard/ziua-perfecta', icon: '☀️', label: 'Ziua Perfecta' },
-    { href: '/dashboard/challenge', icon: '🏆', label: 'Challenge' },
-    { href: '/dashboard/recuperare', icon: '🔄', label: 'Recuperare' },
-    { href: '/dashboard/roata-vietii', icon: '⚖️', label: 'Roata Vietii' },
-    { href: '/dashboard/cont',       icon: '👤', label: 'Contul meu' },
+  { href: '/dashboard/profil',       icon: '👤', label: 'Profilul meu' },
+  { href: '/dashboard',              icon: '📊', label: 'Dashboard' },
+  { href: '/dashboard/analiza',      icon: '🌿', label: 'Analiză Nouă' },
+  { href: '/dashboard/nutritie',     icon: '🥗', label: 'Nutriție' },
+  { href: '/dashboard/sport',        icon: '🏋️', label: 'Sport' },
+  { href: '/dashboard/wearables',    icon: '⌚', label: 'Wearables' },
+  { href: '/dashboard/istoric',      icon: '📈', label: 'Istoric & Trend' },
+  { href: '/dashboard/predictie',    icon: '🔮', label: 'Predicție Sănătate' },
+  { href: '/dashboard/roata-vietii', icon: '⚖️', label: 'Roata Vieții' },
+  { href: '/dashboard/challenge',    icon: '🏆', label: 'Challenge' },
+  { href: '/dashboard/recuperare',   icon: '🔄', label: 'Recuperare' },
+  { href: '/dashboard/cont',         icon: '💳', label: 'Contul meu' },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
