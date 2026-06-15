@@ -315,12 +315,14 @@ export default function WearablesPage() {
               {/* Metrici cheie */}
               <div className="card p-4">
                 <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider mb-3">⚡ Metrici cheie</div>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
                   {[
                     { icon: '💓', l: 'HRV', v: comb.hrv ? `${comb.hrv}ms` : '—', thr: [30, 45] as [number, number], raw: comb.hrv },
                     { icon: '😴', l: 'Somn', v: comb.ore_somn ? `${comb.ore_somn}h` : '—', thr: [6.5, 7.5] as [number, number], raw: comb.ore_somn },
                     { icon: '🏃', l: 'Pași', v: comb.pasi ? parseInt(comb.pasi).toLocaleString() : '—', thr: [7000, 10000] as [number, number], raw: comb.pasi },
-                    { icon: '❤️', l: 'HR Repaus', v: comb.hr_minim ? `${comb.hr_minim}bpm` : '—', thr: [55, 65] as [number, number], raw: 100 - (comb.hr_minim || 0) },
+                    { icon: '❤️', l: 'HR', v: (comb.hr_minim || comb.hr_medie) ? `${comb.hr_minim || comb.hr_medie}bpm` : '—', thr: [55, 75] as [number, number], raw: 100 - (comb.hr_minim || comb.hr_medie || 0) },
+                    { icon: '🔥', l: 'Calorii', v: comb.calorii ? `${comb.calorii}` : '—', thr: [1800, 2500] as [number, number], raw: comb.calorii },
+                    { icon: '⚡', l: 'Min. Active', v: comb.minute_active ? `${comb.minute_active}min` : '—', thr: [30, 60] as [number, number], raw: comb.minute_active },
                   ].map((m, i) => (
                     <div key={i} className="text-center p-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
                       <div className="text-lg mb-1">{m.icon}</div>
