@@ -103,7 +103,7 @@ export default function WearablesPage() {
     finally { setSyncing(false) }
   }
 
-  const oricareConetat = ouraStatus?.conectat || garminStatus?.conectat
+  const oricareConetat = ouraStatus?.conectat || garminStatus?.conectat || util?.profil_complet?.google_fit_conectat
   const comb = dateWearable?.combinat || {}
 
   // ── GATE: plan insuficient ─────────────────────────────────────────────────
