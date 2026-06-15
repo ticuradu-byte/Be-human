@@ -173,7 +173,8 @@ export default function DashboardPage() {
             <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} — Azi</div>
             <a href="/dashboard/wearables" className="text-xs text-green-400/60 hover:text-green-400">Vezi detalii →</a>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* Metrici azi */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-4">
             {[
               { icon: '🏃', label: 'Pași', value: wearableData.pasi?.toLocaleString(), color: '#4ade80' },
               { icon: '🔥', label: 'Calorii', value: `${wearableData.calorii} kcal`, color: '#fb923c' },
@@ -187,6 +188,29 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          {/* Grafic pași 30 zile */}
+          {wearableData.zile?.length > 0 && (
+            <div>
+              <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider mb-2">📈 Pași — ultimele {wearableData.zile.length} zile</div>
+              <div className="flex items-end gap-0.5 h-16">
+                {wearableData.zile.slice(-30).map((z: any, i: number) => {
+                  const maxPasi = Math.max(...wearableData.zile.map((z: any) => z.pasi || 0))
+                  const h = maxPasi > 0 ? Math.round((z.pasi / maxPasi) * 100) : 0
+                  const color = z.pasi >= 10000 ? '#4ade80' : z.pasi >= 7000 ? '#facc15' : '#f87171'
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-0.5" title={`${z.data}: ${z.pasi?.toLocaleString()} pași`}>
+                      <div className="w-full rounded-t-sm transition-all" style={{ height: `${h}%`, background: color, minHeight: z.pasi > 0 ? '2px' : '0' }} />
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="flex justify-between text-[9px] text-white/20 mt-1">
+                <span>{wearableData.zile[0]?.data}</span>
+                <span>🟢 ≥10k pași</span>
+                <span>{wearableData.zile[wearableData.zile.length-1]?.data}</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {/* Analize recente */}

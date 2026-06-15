@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     }
 
     const now = Date.now()
-    const acum7Zile = now - 7 * 24 * 60 * 60 * 1000
+    const acum7Zile = now - 30 * 24 * 60 * 60 * 1000
 
     const fitRes = await fetch(
       'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
