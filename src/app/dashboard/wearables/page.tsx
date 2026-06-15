@@ -38,7 +38,7 @@ export default function WearablesPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
       setUserId(user.id)
-      supabase.from('utilizatori').select('plan').eq('id', user.id).single()
+      supabase.from('utilizatori').select('plan, profil_complet').eq('id', user.id).single()
         .then(({ data }) => { if (data) { setPlan(data.plan); setUtil(data); } })
       checkStatuses(user.id)
       loadIstoricDate(user.id)
