@@ -196,7 +196,7 @@ export default function ProfilPage() {
           fetch(`${API_WEARABLES}/oura/status/${user.id}`).then(r => r.json()).catch(() => ({ conectat: false })),
           fetch(`${API_WEARABLES}/garmin/status/${user.id}`).then(r => r.json()).catch(() => ({ conectat: false })),
         ])
-        setWearableStatus({ oura: o.conectat, garmin: g.conectat })
+        setWearableStatus(prev => ({ ...prev, oura: o.conectat, garmin: g.conectat }))
       } catch {}
     }
     load()
