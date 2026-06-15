@@ -97,7 +97,17 @@ export default function WearablesPage() {
         const res = await fetch(`/api/wearables/google-fit/data?user_id=${userId}`)
         const data = await res.json()
         if (data.ok) {
-          setDateWearable({ combinat: data.azi, zile: data.zile, sursa: 'google_fit' })
+          setDateWearable({ 
+            combinat: { 
+              pasi: data.azi?.pasi,
+              calorii: data.azi?.calorii,
+              hr_minim: data.azi?.hr_medie,
+              minute_active: data.azi?.minute_active,
+              sursa: 'google_fit'
+            }, 
+            zile: data.zile, 
+            sursa: 'google_fit' 
+          })
           setTab('date')
         } else setEroare(data.error || 'Eroare Google Fit')
       } else {
