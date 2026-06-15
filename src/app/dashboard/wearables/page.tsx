@@ -23,6 +23,8 @@ export default function WearablesPage() {
   const [ouraStatus, setOuraStatus] = useState<any>(null)
   const [garminStatus, setGarminStatus] = useState<any>(null)
   const [dateWearable, setDateWearable] = useState<any>(null)
+  const [zile30, setZile30] = useState<any[]>([])
+  const [metricaGrafic, setMetricaGrafic] = useState<'pasi'|'calorii'|'minute_active'>('pasi')
   const [loading, setLoading]       = useState(false)
   const [syncing, setSyncing]       = useState(false)
   const [garminForm, setGarminForm] = useState({ email: '', password: '' })
@@ -39,7 +41,28 @@ export default function WearablesPage() {
       if (!user) return
       setUserId(user.id)
       supabase.from('utilizatori').select('plan, profil_complet').eq('id', user.id).single()
-        .then(({ data }) => { if (data) { setPlan(data.plan); setUtil(data); } })
+        .then(async ({ data }) => { 
+          if (data) { 
+            setPlan(data.plan)
+            setUtil(data)
+            // Auto-load Google Fit
+            if (data.profil_complet?.google_fit_conectat) {
+              try {
+                const res = await fetch(`/api/wearables/google-fit/data?user_id=${uid}`)
+                const gfit = await res.json()
+                if (gfit.ok) {
+                  setZile30(gfit.zile || [])
+                  const hrVal = gfit.azi?.hr_medie || gfit.zile?.slice().reverse().find((z: any) => z.hr_medie > 0)?.hr_medie || 0
+                  setDateWearable({
+                    combinat: { pasi: gfit.azi?.pasi, calorii: gfit.azi?.calorii, hr_medie: hrVal, hr_minim: hrVal, minute_active: gfit.azi?.minute_active, sursa: 'google_fit' },
+                    zile: gfit.zile, sursa: 'google_fit', data_zi: gfit.azi?.data
+                  })
+                  setTab('date')
+                }
+              } catch(e) { console.log('GFit auto-load:', e) }
+            }
+          }
+        })
       checkStatuses(user.id)
       loadIstoricDate(user.id)
     })
@@ -314,6 +337,96 @@ export default function WearablesPage() {
                 <span className="text-xs text-white/30 self-center">· {dateWearable.data_zi}</span>
               </div>
 
+              {/* Grafic trend 30 zile */}
+              {(zile30.length > 0 || dateWearable?.zile?.length > 0) && (() => {
+                const zile = zile30.length > 0 ? zile30 : (dateWearable?.zile || [])
+                const metrici = [
+                  { key: 'pasi', label: 'Pași', color: '#4ade80', target: 10000 },
+                  { key: 'calorii', label: 'Calorii', color: '#fb923c', target: 2500 },
+                  { key: 'minute_active', label: 'Min. active', color: '#a78bfa', target: 30 },
+                ]
+                const metrica = metrici.find(m => m.key === metricaGrafic) || metrici[0]
+                const valori = zile.map((z: any) => z[metricaGrafic] || 0)
+                const maxVal = Math.max(...valori, 1)
+                return (
+                  <div className="card p-4 mb-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider">📈 Trend {zile.length} zile</div>
+                      <div className="flex gap-1">
+                        {metrici.map(m => (
+                          <button key={m.key} onClick={() => setMetricaGrafic(m.key as any)}
+                            className={`text-[10px] px-2 py-1 rounded-lg transition-all ${metricaGrafic === m.key ? 'text-white font-bold' : 'text-white/30'}`}
+                            style={metricaGrafic === m.key ? { background: m.color + '20', color: m.color } : {}}>
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-end gap-0.5 h-20">
+                      {zile.map((z: any, i: number) => {
+                        const val = z[metricaGrafic] || 0
+                        const h = Math.round((val / maxVal) * 100)
+                        const ok = val >= metrica.target
+                        return (
+                          <div key={i} className="flex-1 flex flex-col justify-end" title={`${z.data}: ${val.toLocaleString()}`}>
+                            <div className="w-full rounded-t-sm" style={{ height: `${Math.max(h, val > 0 ? 4 : 0)}%`, background: ok ? metrica.color : metrica.color + '60' }} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="flex justify-between text-[9px] text-white/20 mt-1">
+                      <span>{zile[0]?.data}</span>
+                      <span style={{ color: metrica.color }}>target: {metrica.target.toLocaleString()}</span>
+                      <span>{zile[zile.length-1]?.data}</span>
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Grafic trend 30 zile */}
+              {(zile30.length > 0 || dateWearable?.zile?.length > 0) && (() => {
+                const zile = zile30.length > 0 ? zile30 : (dateWearable?.zile || [])
+                const metrici = [
+                  { key: 'pasi', label: 'Pași', color: '#4ade80', target: 10000 },
+                  { key: 'calorii', label: 'Calorii', color: '#fb923c', target: 2500 },
+                  { key: 'minute_active', label: 'Min. active', color: '#a78bfa', target: 30 },
+                ]
+                const metrica = metrici.find(m => m.key === metricaGrafic) || metrici[0]
+                const valori = zile.map((z: any) => z[metricaGrafic] || 0)
+                const maxVal = Math.max(...valori, 1)
+                return (
+                  <div className="card p-4 mb-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider">📈 Trend {zile.length} zile</div>
+                      <div className="flex gap-1">
+                        {metrici.map(m => (
+                          <button key={m.key} onClick={() => setMetricaGrafic(m.key as any)}
+                            className={`text-[10px] px-2 py-1 rounded-lg transition-all ${metricaGrafic === m.key ? 'text-white font-bold' : 'text-white/30'}`}
+                            style={metricaGrafic === m.key ? { background: m.color + '20', color: m.color } : {}}>
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-end gap-0.5 h-20">
+                      {zile.map((z: any, i: number) => {
+                        const val = z[metricaGrafic] || 0
+                        const h = Math.round((val / maxVal) * 100)
+                        const ok = val >= metrica.target
+                        return (
+                          <div key={i} className="flex-1 flex flex-col justify-end" title={`${z.data}: ${val.toLocaleString()}`}>
+                            <div className="w-full rounded-t-sm" style={{ height: `${Math.max(h, val > 0 ? 4 : 0)}%`, background: ok ? metrica.color : metrica.color + '60' }} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="flex justify-between text-[9px] text-white/20 mt-1">
+                      <span>{zile[0]?.data}</span>
+                      <span style={{ color: metrica.color }}>target: {metrica.target.toLocaleString()}</span>
+                      <span>{zile[zile.length-1]?.data}</span>
+                    </div>
+                  </div>
+                )
+              })()}
               {/* Metrici cheie */}
               <div className="card p-4">
                 <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider mb-3">⚡ Metrici cheie</div>
