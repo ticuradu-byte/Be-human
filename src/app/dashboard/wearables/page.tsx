@@ -362,14 +362,14 @@ export default function WearablesPage() {
                         ))}
                       </div>
                     </div>
-                    <div className="flex items-end gap-0.5 h-20">
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '80px' }}>
                       {zile.map((z: any, i: number) => {
                         const val = z[metricaGrafic] || 0
-                        const h = Math.round((val / maxVal) * 100)
+                        const h = maxVal > 0 ? Math.round((val / maxVal) * 76) : 0
                         const ok = val >= metrica.target
                         return (
-                          <div key={i} className="flex-1 flex flex-col justify-end" title={`${z.data}: ${val.toLocaleString()}`}>
-                            <div className="w-full rounded-t-sm" style={{ height: `${Math.max(h, val > 0 ? 4 : 0)}%`, background: ok ? metrica.color : metrica.color + '60' }} />
+                          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '80px' }} title={`${z.data}: ${val.toLocaleString()}`}>
+                            <div style={{ width: '100%', height: `${Math.max(h, val > 0 ? 3 : 0)}px`, background: ok ? metrica.color : metrica.color + '80', borderRadius: '2px 2px 0 0' }} />
                           </div>
                         )
                       })}
