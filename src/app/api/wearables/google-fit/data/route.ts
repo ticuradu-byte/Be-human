@@ -58,7 +58,6 @@ export async function GET(req: NextRequest) {
             { dataTypeName: 'com.google.step_count.delta' },
             { dataTypeName: 'com.google.calories.expended' },
             { dataTypeName: 'com.google.heart_rate.bpm' },
-            { dataTypeName: 'com.google.distance.delta' },
             { dataTypeName: 'com.google.active_minutes' },
           ],
           bucketByTime: { durationMillis: 86400000 },
@@ -73,14 +72,16 @@ export async function GET(req: NextRequest) {
 
     const rezultate: any[] = []
     for (const bucket of (fitData.bucket || [])) {
-      const zi: any = { data: new Date(parseInt(bucket.startTimeMillis)).toLocaleDateString('ro-RO'), pasi: 0, calorii: 0, hr_medie: 0, distanta_km: 0, minute_active: 0 }
+      const zi: any = { 
+        data: new Date(parseInt(bucket.startTimeMillis)).toLocaleDateString('ro-RO'), 
+        pasi: 0, calorii: 0, hr_medie: 0, minute_active: 0 
+      }
       for (const ds of (bucket.dataset || [])) {
         for (const point of (ds.point || [])) {
           const vals = point.value || []
           if (ds.dataSourceId?.includes('step_count')) zi.pasi += vals[0]?.intVal || 0
           if (ds.dataSourceId?.includes('calories')) zi.calorii += Math.round(vals[0]?.fpVal || 0)
           if (ds.dataSourceId?.includes('heart_rate')) zi.hr_medie = Math.round(vals[0]?.fpVal || 0)
-          if (ds.dataSourceId?.includes('distance')) zi.distanta_km += Math.round((vals[0]?.fpVal || 0) / 10) / 100
           if (ds.dataSourceId?.includes('active_minutes')) zi.minute_active += vals[0]?.intVal || 0
         }
       }
