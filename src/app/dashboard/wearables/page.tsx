@@ -97,7 +97,7 @@ export default function WearablesPage() {
         const res = await fetch(`/api/wearables/google-fit/data?user_id=${userId}`)
         const data = await res.json()
         if (data.ok) {
-          const hrAzi = data.azi?.hr_medie || data.zile?.slice(-2, -1)[0]?.hr_medie || 0
+          const hrAzi = data.azi?.hr_medie || data.zile?.slice().reverse().find((z: any) => z.hr_medie > 0)?.hr_medie || 0
           setDateWearable({ 
             combinat: { 
               pasi: data.azi?.pasi,
