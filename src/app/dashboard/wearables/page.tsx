@@ -19,6 +19,7 @@ export default function WearablesPage() {
 
   const [userId, setUserId]         = useState('')
   const [plan, setPlan]             = useState('free')
+  const [util, setUtil]             = useState<any>(null)
   const [ouraStatus, setOuraStatus] = useState<any>(null)
   const [garminStatus, setGarminStatus] = useState<any>(null)
   const [dateWearable, setDateWearable] = useState<any>(null)
@@ -38,7 +39,7 @@ export default function WearablesPage() {
       if (!user) return
       setUserId(user.id)
       supabase.from('utilizatori').select('plan').eq('id', user.id).single()
-        .then(({ data }) => { if (data) setPlan(data.plan) })
+        .then(({ data }) => { if (data) { setPlan(data.plan); setUtil(data); } })
       checkStatuses(user.id)
       loadIstoricDate(user.id)
     })
@@ -234,7 +235,7 @@ export default function WearablesPage() {
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
                   <div className="font-semibold text-white/85 text-sm">Google Fit</div>
-                  {util?.profil_complet?.google_fit_conectat
+                  {(util as any)?.profil_complet?.google_fit_conectat
                     ? <span className="text-xs text-green-400 font-medium">✅ Conectat</span>
                     : <button onClick={() => window.location.href = `/api/wearables/google-fit?user_id=${userId}`}
                         className="btn-green text-xs py-1.5 px-4">Conectează →</button>
