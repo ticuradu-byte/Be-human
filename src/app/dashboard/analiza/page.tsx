@@ -207,8 +207,25 @@ export default function AnalizaPageV2() {
       if (!user) return
 
       supabase.from('utilizatori').select('*').eq('id', user.id).single()
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           setUtil(data)
+          if (data?.profil_complet?.google_fit_conectat) {
+            try {
+              const gfitRes = await fetch(`/api/wearables/google-fit/data?user_id=${user.id}`)
+              const gfitData = await gfitRes.json()
+              if (gfitData.ok && gfitData.zile?.length > 0) {
+                const zile = gfitData.zile
+                const n = zile.length
+                const pasi = Math.round(zile.reduce((a,z) => a+z.pasi, 0)/n)
+                const cal = Math.round(zile.reduce((a,z) => a+z.calorii, 0)/n)
+                const hr = Math.round(zile.filter(z=>z.hr_medie>0).reduce((a,z)=>a+z.hr_medie,0)/Math.max(1,zile.filter(z=>z.hr_medie>0).length))
+                const min = Math.round(zile.reduce((a,z)=>a+z.minute_active,0)/n)
+                const azi = gfitData.azi
+                const txt = `Date Google Fit (medie ${n} zile):\nPași medii/zi: ${pasi.toLocaleString()}\nCalorii medii/zi: ${cal} kcal\nHR medie: ${hr} bpm\nMinute active/zi: ${min} min\nAzi (${azi?.data}): ${azi?.pasi?.toLocaleString()} pași · ${azi?.calorii} kcal · ${azi?.minute_active} min active`
+                setSurse(p => ({ ...p, smartwatch: txt }))
+              }
+            } catch(e) { console.log('GFit:', e) }
+          }
 
           if (data?.profil_complet) {
             const p = data.profil_complet
