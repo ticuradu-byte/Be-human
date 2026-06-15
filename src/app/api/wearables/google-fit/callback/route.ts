@@ -6,37 +6,27 @@ export async function POST(req: NextRequest) {
   try {
     const { code, userId } = await req.json()
 
-    const params = new URLSearchParams({
-      code,
-      client_id: process.env.GOOGLE_FIT_CLIENT_ID || '',
-      client_secret: process.env.GOOGLE_FIT_CLIENT_SECRET || '',
-      redirect_uri: 'https://be-human-gamma.vercel.app/auth/callback/google-fit',
-      grant_type: 'authorization_code',
-    })
-
-    console.log('Sending to Google, client_id exists:', !!process.env.GOOGLE_FIT_CLIENT_ID)
-
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params,
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_FIT_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_FIT_CLIENT_SECRET!,
+        redirect_uri: 'https://be-human-gamma.vercel.app/auth/callback/google-fit',
+        grant_type: 'authorization_code',
+      }),
     })
 
     const tokens = await tokenRes.json()
-    console.log('Token response:', JSON.stringify(tokens))
-
     if (!tokens.access_token) {
-      return NextResponse.json({ 
-        error: 'no_token', 
-        details: tokens,
-        hasClientId: !!process.env.GOOGLE_FIT_CLIENT_ID,
-        hasSecret: !!process.env.GOOGLE_FIT_CLIENT_SECRET
-      }, { status: 400 })
+      return NextResponse.json({ error: 'no_token', details: tokens }, { status: 400 })
     }
 
+    // Folosim service role key pentru a ocoli RLS
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
     const { data: user } = await supabase
@@ -50,15 +40,15 @@ export async function POST(req: NextRequest) {
       .update({ 
         profil_complet: { 
           ...(user?.profil_complet || {}), 
-          google_fit_token: tokens, 
-          google_fit_conectat: true 
+          google_fit_token: tokens,
+          google_fit_conectat: true,
+          google_fit_data: new Date().toISOString()
         } 
       })
       .eq('id', userId)
 
     return NextResponse.json({ ok: true })
   } catch(e: any) {
-    console.error('Callback error:', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
