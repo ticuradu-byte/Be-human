@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [jurnal, setJurnal] = useState<any[]>([])
   const [analize, setAnalize] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [wearableData, setWearableData] = useState<any>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -29,6 +30,27 @@ export default function DashboardPage() {
       if (u) setUtil(u)
       if (j) setJurnal(j)
       if (a) setAnalize(a)
+      
+      // Load wearables data
+      if (u?.profil_complet?.google_fit_conectat) {
+        try {
+          const gfitRes = await fetch(`/api/wearables/google-fit/data?user_id=${user.id}`)
+          const gfitData = await gfitRes.json()
+          if (gfitData.ok) {
+            const zile = gfitData.zile || []
+            const hrZi = gfitData.azi?.hr_medie || zile.slice().reverse().find((z: any) => z.hr_medie > 0)?.hr_medie || 0
+            setWearableData({
+              sursa: 'Google Fit',
+              pasi: gfitData.azi?.pasi || 0,
+              calorii: gfitData.azi?.calorii || 0,
+              hr_medie: hrZi,
+              minute_active: gfitData.azi?.minute_active || 0,
+              zile: zile,
+            })
+          }
+        } catch(e) { console.log('GFit dashboard error:', e) }
+      }
+      
       setLoading(false)
     }
     load()
@@ -144,6 +166,52 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Wearables Card */}
+      {wearableData && (
+        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} — Azi</div>
+            <a href="/dashboard/wearables" className="text-xs text-green-400/60 hover:text-green-400">Vezi detalii →</a>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { icon: '🏃', label: 'Pași', value: wearableData.pasi?.toLocaleString(), color: '#4ade80' },
+              { icon: '🔥', label: 'Calorii', value: `${wearableData.calorii} kcal`, color: '#fb923c' },
+              { icon: '❤️', label: 'HR medie', value: wearableData.hr_medie ? `${wearableData.hr_medie} bpm` : '—', color: '#f87171' },
+              { icon: '⚡', label: 'Min. active', value: `${wearableData.minute_active} min`, color: '#a78bfa' },
+            ].map((m, i) => (
+              <div key={i} className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                <div className="text-lg mb-1">{m.icon}</div>
+                <div className="text-sm font-bold" style={{ color: m.color }}>{m.value}</div>
+                <div className="text-[9px] text-white/30 mt-0.5">{m.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* Wearables Card */}
+      {wearableData && (
+        <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} — Azi</div>
+            <a href="/dashboard/wearables" className="text-xs text-green-400/60 hover:text-green-400">Vezi detalii →</a>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { icon: '🏃', label: 'Pași', value: wearableData.pasi?.toLocaleString(), color: '#4ade80' },
+              { icon: '🔥', label: 'Calorii', value: `${wearableData.calorii} kcal`, color: '#fb923c' },
+              { icon: '❤️', label: 'HR medie', value: wearableData.hr_medie ? `${wearableData.hr_medie} bpm` : '—', color: '#f87171' },
+              { icon: '⚡', label: 'Min. active', value: `${wearableData.minute_active} min`, color: '#a78bfa' },
+            ].map((m, i) => (
+              <div key={i} className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                <div className="text-lg mb-1">{m.icon}</div>
+                <div className="text-sm font-bold" style={{ color: m.color }}>{m.value}</div>
+                <div className="text-[9px] text-white/30 mt-0.5">{m.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Analize recente */}
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
