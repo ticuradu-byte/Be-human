@@ -93,13 +93,22 @@ export default function WearablesPage() {
   const trageDate = async (zi?: string) => {
     setSyncing(true); setEroare('')
     try {
-      const params = zi ? `?data=${zi}` : ''
-      const res = await fetch(`${API}/wearables/date-complete/${userId}${params}`)
-      const data = await res.json()
-      setDateWearable(data)
-      setTab('date')
-      await loadIstoricDate(userId)
-    } catch { setEroare('Eroare la tragerea datelor. Verifică că API-ul wearables rulează.') }
+      if (util?.profil_complet?.google_fit_conectat) {
+        const res = await fetch(`/api/wearables/google-fit/data?user_id=${userId}`)
+        const data = await res.json()
+        if (data.ok) {
+          setDateWearable({ combinat: data.azi, zile: data.zile, sursa: 'google_fit' })
+          setTab('date')
+        } else setEroare(data.error || 'Eroare Google Fit')
+      } else {
+        const params = zi ? `?data=${zi}` : ''
+        const res = await fetch(`${API}/wearables/date-complete/${userId}${params}`)
+        const data = await res.json()
+        setDateWearable(data)
+        setTab('date')
+        await loadIstoricDate(userId)
+      }
+    } catch(e: any) { setEroare('Eroare: ' + e.message) }
     finally { setSyncing(false) }
   }
 
