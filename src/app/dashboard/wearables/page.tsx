@@ -106,7 +106,6 @@ export default function WearablesPage() {
   const comb = dateWearable?.combinat || {}
 
   // ── GATE: plan insuficient ─────────────────────────────────────────────────
-  if (false) { // acces liber pentru toti
 
   return (
     <div className="fade-in space-y-4 max-w-2xl">
@@ -414,3 +413,4 @@ export default function WearablesPage() {
     </div>
   )
 }
+
