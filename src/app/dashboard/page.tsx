@@ -41,6 +41,7 @@ export default function DashboardPage() {
             const hrZi = gfitData.azi?.hr_medie || zile.slice().reverse().find((z: any) => z.hr_medie > 0)?.hr_medie || 0
             setWearableData({
               sursa: 'Google Fit',
+              dataZi: gfitData.azi?.data || '',
               pasi: gfitData.azi?.pasi || 0,
               calorii: gfitData.azi?.calorii || 0,
               hr_medie: hrZi,
@@ -170,7 +171,7 @@ export default function DashboardPage() {
       {wearableData && (
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} — Azi</div>
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} · {wearableData.dataZi || "Ultima zi"}</div>
             <a href="/dashboard/wearables" className="text-xs text-green-400/60 hover:text-green-400">Vezi detalii →</a>
           </div>
           {/* Metrici azi */}
