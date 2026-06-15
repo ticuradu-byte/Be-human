@@ -184,7 +184,12 @@ export default function ProfilPage() {
       if (!user) return
       setUserId(user.id)
       const { data } = await supabase.from('utilizatori').select('*').eq('id', user.id).single()
-      if (data?.profil_complet) setProfil(p => ({ ...p, ...data.profil_complet }))
+      if (data?.profil_complet) {
+        setProfil(p => ({ ...p, ...data.profil_complet }))
+        if (data.profil_complet.google_fit_conectat) {
+          setWearableStatus(p => ({ ...p, googlefit: true, healthconn: true }))
+        }
+      }
       if (data?.nume) setProfil(p => ({ ...p, prenume: data.nume }))
       try {
         const [o, g] = await Promise.all([
