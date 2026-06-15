@@ -382,51 +382,6 @@ export default function WearablesPage() {
                   </div>
                 )
               })()}
-              {/* Grafic trend 30 zile */}
-              {(zile30.length > 0 || dateWearable?.zile?.length > 0) && (() => {
-                const zile = zile30.length > 0 ? zile30 : (dateWearable?.zile || [])
-                const metrici = [
-                  { key: 'pasi', label: 'Pași', color: '#4ade80', target: 10000 },
-                  { key: 'calorii', label: 'Calorii', color: '#fb923c', target: 2500 },
-                  { key: 'minute_active', label: 'Min. active', color: '#a78bfa', target: 30 },
-                ]
-                const metrica = metrici.find(m => m.key === metricaGrafic) || metrici[0]
-                const valori = zile.map((z: any) => z[metricaGrafic] || 0)
-                const maxVal = Math.max(...valori, 1)
-                return (
-                  <div className="card p-4 mb-3">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider">📈 Trend {zile.length} zile</div>
-                      <div className="flex gap-1">
-                        {metrici.map(m => (
-                          <button key={m.key} onClick={() => setMetricaGrafic(m.key as any)}
-                            className={`text-[10px] px-2 py-1 rounded-lg transition-all ${metricaGrafic === m.key ? 'text-white font-bold' : 'text-white/30'}`}
-                            style={metricaGrafic === m.key ? { background: m.color + '20', color: m.color } : {}}>
-                            {m.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-end gap-0.5 h-20">
-                      {zile.map((z: any, i: number) => {
-                        const val = z[metricaGrafic] || 0
-                        const h = Math.round((val / maxVal) * 100)
-                        const ok = val >= metrica.target
-                        return (
-                          <div key={i} className="flex-1 flex flex-col justify-end" title={`${z.data}: ${val.toLocaleString()}`}>
-                            <div className="w-full rounded-t-sm" style={{ height: `${Math.max(h, val > 0 ? 4 : 0)}%`, background: ok ? metrica.color : metrica.color + '60' }} />
-                          </div>
-                        )
-                      })}
-                    </div>
-                    <div className="flex justify-between text-[9px] text-white/20 mt-1">
-                      <span>{zile[0]?.data}</span>
-                      <span style={{ color: metrica.color }}>target: {metrica.target.toLocaleString()}</span>
-                      <span>{zile[zile.length-1]?.data}</span>
-                    </div>
-                  </div>
-                )
-              })()}
               {/* Metrici cheie */}
               <div className="card p-4">
                 <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider mb-3">⚡ Metrici cheie</div>
