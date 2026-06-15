@@ -379,6 +379,18 @@ export default function WearablesPage() {
                       <span style={{ color: metrica.color }}>target: {metrica.target.toLocaleString()}</span>
                       <span>{zile[zile.length-1]?.data}</span>
                     </div>
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      {[
+                        { l: 'Medie', v: Math.round(valori.filter((v: number) => v > 0).reduce((a: number, b: number) => a + b, 0) / Math.max(1, valori.filter((v: number) => v > 0).length)) },
+                        { l: 'Max', v: Math.max(...valori) },
+                        { l: 'Min', v: Math.min(...valori.filter((v: number) => v > 0)) },
+                      ].map((s, i) => (
+                        <div key={i} className="text-center p-2 bg-white/[0.02] rounded-lg">
+                          <div className="text-xs font-bold" style={{ color: metrica.color }}>{s.v?.toLocaleString()}</div>
+                          <div className="text-[9px] text-white/25">{s.l}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )
               })()}
