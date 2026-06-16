@@ -247,7 +247,7 @@ Medie ultimele 7 zile:
 Medie ultimele 30 zile:
 - Pași: ${s30.pasi.toLocaleString()} | Calorii: ${s30.calorii} kcal | HR: ${s30.hr} bpm | Minute active: ${s30.min} min`
 
-              setSurse(p => ({ ...p, smartwatch: txt }))
+              setSurse(p => ({ ...p, garmin: txt }))
             }
           } catch(e) { console.log('Sync wearables error:', e) }
 
