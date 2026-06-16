@@ -212,8 +212,35 @@ export default function AnalizaPageV2() {
           try {
             const syncRes = await fetch(`/api/wearables/sync?user_id=${user.id}`)
             const syncData = await syncRes.json()
-            if (syncData.ok && syncData.text_analiza) {
-              setSurse(p => ({ ...p, smartwatch: syncData.text_analiza }))
+            if (syncData.ok && syncData.zile?.length > 0) {
+              const zile = syncData.zile
+              const azi = syncData.azi
+              const zile7 = zile.slice(-7)
+              const zile30 = zile
+
+              // Calculează statistici per perioadă
+              const stat = (arr: any[]) => ({
+                pasi: Math.round(arr.reduce((a: number, z: any) => a + (z.pasi||0), 0) / arr.length),
+                calorii: Math.round(arr.reduce((a: number, z: any) => a + (z.calorii||0), 0) / arr.length),
+                hr: Math.round(arr.filter((z: any) => z.hr_medie > 0).reduce((a: number, z: any) => a + z.hr_medie, 0) / Math.max(1, arr.filter((z: any) => z.hr_medie > 0).length)),
+                min: Math.round(arr.reduce((a: number, z: any) => a + (z.minute_active||0), 0) / arr.length),
+              })
+
+              const s7 = stat(zile7)
+              const s30 = stat(zile30)
+
+              const txt = `Date wearables (${syncData.surse_active?.join(' + ') || 'Google Fit'}):
+
+Ultima zi (${azi?.data}):
+- Pași: ${azi?.pasi?.toLocaleString()} | Calorii: ${azi?.calorii} kcal | HR: ${syncData.hr_medie || '—'} bpm | Minute active: ${azi?.minute_active} min${syncData.greutate ? ` | Greutate: ${syncData.greutate} kg` : ''}
+
+Medie ultimele 7 zile:
+- Pași: ${s7.pasi.toLocaleString()} | Calorii: ${s7.calorii} kcal | HR: ${s7.hr} bpm | Minute active: ${s7.min} min
+
+Medie ultimele 30 zile:
+- Pași: ${s30.pasi.toLocaleString()} | Calorii: ${s30.calorii} kcal | HR: ${s30.hr} bpm | Minute active: ${s30.min} min`
+
+              setSurse(p => ({ ...p, smartwatch: txt }))
             }
           } catch(e) { console.log('Sync wearables error:', e) }
 
