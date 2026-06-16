@@ -7,6 +7,7 @@ async function getGoogleFitData(userId: string, supabase: any) {
     .from('utilizatori').select('profil_complet').eq('id', userId).single()
   
   const token = user?.profil_complet?.google_fit_token
+  console.log('User found:', !!user, 'token exists:', !!token, 'access_token:', !!token?.access_token)
   if (!token?.access_token) return null
 
   let accessToken = token.access_token
