@@ -229,7 +229,14 @@ export default function AnalizaPageV2() {
               const s7 = stat(zile7)
               const s30 = stat(zile30)
 
-              const txt = `Date wearables (${syncData.surse_active?.join(' + ') || 'Google Fit'}):
+              const dataAzi = new Date().toLocaleDateString('ro-RO')
+              const txt = `CONTEXT TEMPORAL IMPORTANT:
+- Data analizei: ${dataAzi}
+- Analizele medicale uploadate pot fi din urmă cu 1-6 luni — interpretează valorile ținând cont că starea fizică actuală poate fi diferită
+- Datele wearables sunt RECENTE (ultimele 30 zile) și reflectă starea fizică ACTUALĂ
+- Dacă există discrepanță între analize și wearables — menționează că analizele sunt mai vechi
+
+Date wearables (${syncData.surse_active?.join(' + ') || 'Google Fit'}):
 
 Ultima zi (${azi?.data}):
 - Pași: ${azi?.pasi?.toLocaleString()} | Calorii: ${azi?.calorii} kcal | HR: ${syncData.hr_medie || '—'} bpm | Minute active: ${azi?.minute_active} min${syncData.greutate ? ` | Greutate: ${syncData.greutate} kg` : ''}
