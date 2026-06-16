@@ -261,7 +261,7 @@ Medie ultimele 30 zile:
             // Auto-populare surse
             const surseNoi = buildSurseFromProfil(p)
             if (Object.keys(surseNoi).length > 0) {
-              setSurse(prev => ({ ...surseNoi, ...prev }))
+              setSurse(prev => ({ ...prev, ...surseNoi, ...(prev.garmin ? { garmin: prev.garmin } : {}) }))
               setProfilIncarcat(true)
             }
           }
