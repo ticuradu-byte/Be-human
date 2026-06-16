@@ -63,7 +63,6 @@ export async function GET(req: NextRequest) {
             { dataTypeName: 'com.google.weight' },
             { dataTypeName: 'com.google.sleep.segment' },
             { dataTypeName: 'com.google.hydration' },
-            { dataTypeName: 'com.google.oxygen_saturation' },
           ],
           bucketByTime: { durationMillis: 86400000 },
           startTimeMillis: acum7Zile,
