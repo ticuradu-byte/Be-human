@@ -26,8 +26,8 @@ export async function GET(req: NextRequest) {
       zile: [], azi: null,
     }
 
-    // Google Fit / Health Connect
-    if (profil.google_fit_conectat && profil.google_fit_token?.access_token) {
+    // Google Fit / Health Connect — încearcă mereu, endpoint-ul verifică token intern
+    {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://be-human-gamma.vercel.app'
         const res = await fetch(`${baseUrl}/api/wearables/google-fit/data?user_id=${userId}`)
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Oura Ring
-    if (profil.oura_token) {
+    if (profil?.oura_token) {
       try {
         const ieri = new Date(Date.now() - 86400000).toISOString().slice(0,10)
         const [readRes, somnRes] = await Promise.all([
