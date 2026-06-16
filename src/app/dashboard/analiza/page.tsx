@@ -190,6 +190,7 @@ export default function AnalizaPageV2() {
   const [profil, setProfil]           = useState('')
   const [surse, setSurse]             = useState<Record<string, string>>({})
   const [sursaActiva, setSursaActiva] = useState('analize')
+  const gfitTxtRef = React.useRef('')
   const [loading, setLoading]         = useState(false)
   const [loadMsg, setLoadMsg]         = useState('')
   const [result, setResult]           = useState<any>(null)
@@ -247,6 +248,7 @@ Medie ultimele 7 zile:
 Medie ultimele 30 zile:
 - Pași: ${s30.pasi.toLocaleString()} | Calorii: ${s30.calorii} kcal | HR: ${s30.hr} bpm | Minute active: ${s30.min} min`
 
+              gfitTxtRef.current = txt
               setSurse(p => ({ ...p, garmin: txt }))
             }
           } catch(e) { console.log('Sync wearables error:', e) }
@@ -261,7 +263,7 @@ Medie ultimele 30 zile:
             // Auto-populare surse
             const surseNoi = buildSurseFromProfil(p)
             if (Object.keys(surseNoi).length > 0) {
-              setSurse(prev => ({ ...prev, ...surseNoi, ...(prev.garmin ? { garmin: prev.garmin } : {}) }))
+              setSurse(prev => ({ ...prev, ...surseNoi, ...(gfitTxtRef.current ? { garmin: gfitTxtRef.current } : {}) }))
               setProfilIncarcat(true)
             }
           }
