@@ -25,6 +25,7 @@ export default function WearablesPage() {
   const [dateWearable, setDateWearable] = useState<any>(null)
   const [zile30, setZile30] = useState<any[]>([])
   const [metricaGrafic, setMetricaGrafic] = useState<'pasi'|'calorii'|'minute_active'>('pasi')
+  const [tooltipGrafic, setTooltipGrafic] = useState<{x: number, y: number, text: string} | null>(null)
   const [loading, setLoading]       = useState(false)
   const [syncing, setSyncing]       = useState(false)
   const [garminForm, setGarminForm] = useState({ email: '', password: '' })
@@ -362,17 +363,53 @@ export default function WearablesPage() {
                         ))}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '80px' }}>
-                      {zile.map((z: any, i: number) => {
-                        const val = z[metricaGrafic] || 0
-                        const h = maxVal > 0 ? Math.round((val / maxVal) * 76) : 0
-                        const ok = val >= metrica.target
-                        return (
-                          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '80px' }} title={`${z.data}: ${val.toLocaleString()}`}>
-                            <div style={{ width: '100%', height: `${Math.max(h, val > 0 ? 3 : 0)}px`, background: ok ? metrica.color : metrica.color + '80', borderRadius: '2px 2px 0 0' }} />
-                          </div>
-                        )
-                      })}
+                    <div style={{ position: 'relative' }}>
+                      {/* Tooltip */}
+                      {tooltipGrafic && (
+                        <div style={{ position: 'absolute', top: tooltipGrafic.y - 30, left: Math.min(tooltipGrafic.x, 280), background: '#1a2a1a', border: '1px solid #4ade8040', borderRadius: 8, padding: '4px 8px', fontSize: 11, color: '#fff', whiteSpace: 'nowrap', zIndex: 50, pointerEvents: 'none' }}>
+                          {tooltipGrafic.text}
+                        </div>
+                      )}
+                      {/* Grafic 30 zile */}
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '80px' }}
+                        onMouseLeave={() => setTooltipGrafic(null)}>
+                        {zile.map((z: any, i: number) => {
+                          const val = z[metricaGrafic] || 0
+                          const h = maxVal > 0 ? Math.round((val / maxVal) * 76) : 0
+                          const ok = val >= metrica.target
+                          return (
+                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '80px', cursor: 'pointer' }}
+                              onMouseEnter={(e) => setTooltipGrafic({ x: e.nativeEvent.offsetX + i * 8, y: 0, text: `${z.data}: ${val.toLocaleString()}` })}>
+                              <div style={{ width: '100%', height: `${Math.max(h, val > 0 ? 3 : 0)}px`, background: ok ? metrica.color : metrica.color + '80', borderRadius: '2px 2px 0 0' }} />
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {/* Ultimele 7 zile cu valori */}
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Ultimele 7 zile</div>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {zile.slice(-7).map((z: any, i: number) => {
+                            const val = z[metricaGrafic] || 0
+                            const ok = val >= metrica.target
+                            const maxUlt = Math.max(...zile.slice(-7).map((z: any) => z[metricaGrafic] || 0), 1)
+                            const h = Math.round((val / maxUlt) * 48)
+                            return (
+                              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                                <div style={{ fontSize: 9, color: ok ? metrica.color : 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                                  {val > 0 ? (val >= 1000 ? Math.round(val/1000) + 'k' : val) : '—'}
+                                </div>
+                                <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', height: 48 }}>
+                                  <div style={{ width: '100%', height: `${Math.max(h, val > 0 ? 3 : 0)}px`, background: ok ? metrica.color : metrica.color + '60', borderRadius: '3px 3px 0 0' }} />
+                                </div>
+                                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>
+                                  {z.data?.slice(0, 5)}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex justify-between text-[9px] text-white/20 mt-1">
                       <span>{zile[0]?.data}</span>
