@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://be-human-gamma.vercel.app'
         const res = await fetch(`${baseUrl}/api/wearables/google-fit/data?user_id=${userId}`)
         const gfit = await res.json()
+        console.log('GFit response ok:', gfit.ok, 'azi:', !!gfit.azi, 'error:', gfit.error)
         if (gfit.ok && gfit.azi) {
           rezultat.surse_active.push('Google Fit')
           rezultat.pasi = gfit.azi.pasi || null
