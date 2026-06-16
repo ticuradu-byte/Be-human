@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const userId = searchParams.get('user_id')
     if (!userId) return NextResponse.json({ error: 'no_user_id' }, { status: 400 })
+    const excludeSurse = searchParams.get('exclude') || '' // ex: 'garmin,samsung'
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -79,7 +80,13 @@ export async function GET(req: NextRequest) {
       for (const ds of (bucket.dataset || [])) {
         for (const point of (ds.point || [])) {
           const vals = point.value || []
-          if (ds.dataSourceId?.includes('step_count')) zi.pasi += vals[0]?.intVal || 0
+          // Evită dublarea — exclude sursele care sunt deja conectate direct
+        const srcId = ds.dataSourceId || ''
+        const isGarmin = srcId.includes('garmin') || srcId.includes('com.garmin')
+        const isSamsung = srcId.includes('samsung') || srcId.includes('com.samsung')
+        const skipSursa = (excludeSurse.includes('garmin') && isGarmin) || (excludeSurse.includes('samsung') && isSamsung)
+        if (skipSursa) continue
+        if (ds.dataSourceId?.includes('step_count')) zi.pasi += vals[0]?.intVal || 0
           if (ds.dataSourceId?.includes('calories')) zi.calorii += Math.round(vals[0]?.fpVal || 0)
           if (ds.dataSourceId?.includes('heart_rate')) zi.hr_medie = Math.round(vals[0]?.fpVal || 0)
           if (ds.dataSourceId?.includes('active_minutes')) zi.minute_active += vals[0]?.intVal || 0
