@@ -77,10 +77,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-900 mb-1">
+          <h1 className="text-2xl font-semibold text-white mb-1">
             Bună{util?.nume ? `, ${util.nume.split(' ')[0]}` : ''}! 🌿
           </h1>
-          <p className="text-stone-500 text-sm">
+          <p className="text-white/45 text-sm">
             {new Date().toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
         </div>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
       {/* Score + trend */}
       <div className="grid md:grid-cols-4 gap-4">
         <div className="card p-5 md:col-span-2">
-          <div className="text-stone-400 text-xs uppercase tracking-wider mb-3">Scorul de ieri</div>
+          <div className="text-white/30 text-xs uppercase tracking-wider mb-3">Scorul de ieri</div>
           {scorAzi ? (
             <div className="flex items-center gap-4">
               <div className="relative flex-shrink-0">
@@ -115,12 +115,12 @@ export default function DashboardPage() {
                   </div>
                 )}
                 {medie7 && (
-                  <div className="text-xs text-stone-400 mt-1">Medie 7 zile: {medie7}/100</div>
+                  <div className="text-xs text-white/30 mt-1">Medie 7 zile: {medie7}/100</div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="text-stone-400 text-sm">
+            <div className="text-white/30 text-sm">
               Completează jurnalul pentru scor →{' '}
               <Link href="/dashboard/jurnal" className="text-green-400">Jurnal</Link>
             </div>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
 
         {/* Trend */}
         <div className="card p-5 md:col-span-2">
-          <div className="text-stone-400 text-xs uppercase tracking-wider mb-3">Trend 14 zile</div>
+          <div className="text-white/30 text-xs uppercase tracking-wider mb-3">Trend 14 zile</div>
           {jurnal.length > 1 ? (
             <div className="flex items-end gap-1.5 h-12">
               {jurnal.slice().reverse().map((j: any, i: number) => (
@@ -145,7 +145,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="text-stone-400 text-sm">Completează jurnalul zilnic pentru trend</div>
+            <div className="text-white/30 text-sm">Completează jurnalul zilnic pentru trend</div>
           )}
         </div>
       </div>
@@ -160,18 +160,18 @@ export default function DashboardPage() {
         ].map((s, i) => (
           <div key={i} className="card p-5">
             <div className="text-2xl mb-2">{s.icon}</div>
-            <div className="font-fraunces text-2xl font-bold text-stone-900">{s.val}</div>
-            <div className="text-stone-400 text-xs mt-1">{s.label}</div>
-            <div className="text-stone-300 text-[10px]">{s.sub}</div>
+            <div className="font-fraunces text-2xl font-bold text-white">{s.val}</div>
+            <div className="text-white/30 text-xs mt-1">{s.label}</div>
+            <div className="text-white/20 text-[10px]">{s.sub}</div>
           </div>
         ))}
       </div>
 
       {/* Wearables Card */}
       {wearableData && (
-        <div className="bg-stone-900/[0.03] border border-stone-900/[0.08] rounded-2xl p-4">
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">⌚ {wearableData.sursa} · {wearableData.dataZi || "Ultima zi"}</div>
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⌚ {wearableData.sursa} · {wearableData.dataZi || "Ultima zi"}</div>
             <a href="/dashboard/wearables" className="text-xs text-green-400/60 hover:text-green-400">Vezi detalii →</a>
           </div>
           {/* Metrici azi */}
@@ -182,17 +182,17 @@ export default function DashboardPage() {
               { icon: '❤️', label: 'HR medie', value: wearableData.hr_medie ? `${wearableData.hr_medie} bpm` : '—', color: '#f87171' },
               { icon: '⚡', label: 'Min. active', value: `${wearableData.minute_active} min`, color: '#a78bfa' },
             ].map((m, i) => (
-              <div key={i} className="text-center p-3 bg-stone-900/[0.03] rounded-xl border border-stone-900/[0.08]">
+              <div key={i} className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
                 <div className="text-lg mb-1">{m.icon}</div>
                 <div className="text-sm font-bold" style={{ color: m.color }}>{m.value}</div>
-                <div className="text-[9px] text-stone-400 mt-0.5">{m.label}</div>
+                <div className="text-[9px] text-white/30 mt-0.5">{m.label}</div>
               </div>
             ))}
           </div>
           {/* Grafic pași 30 zile */}
           {wearableData.zile?.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2">📈 Pași — ultimele {wearableData.zile.length} zile</div>
+              <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">📈 Pași — ultimele {wearableData.zile.length} zile</div>
               <div className="flex items-end gap-0.5 h-16">
                 {wearableData.zile.slice(-30).map((z: any, i: number) => {
                   const maxPasi = Math.max(...wearableData.zile.map((z: any) => z.pasi || 0))
@@ -205,7 +205,7 @@ export default function DashboardPage() {
                   )
                 })}
               </div>
-              <div className="flex justify-between text-[9px] text-stone-300 mt-1">
+              <div className="flex justify-between text-[9px] text-white/20 mt-1">
                 <span>{wearableData.zile[0]?.data}</span>
                 <span>🟢 ≥10k pași</span>
                 <span>{wearableData.zile[wearableData.zile.length-1]?.data}</span>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
       {/* Analize recente */}
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-stone-700">Analize recente</h3>
+          <h3 className="text-sm font-semibold text-white/70">Analize recente</h3>
           <Link href="/dashboard/istoric" className="text-green-400 text-xs hover:text-green-300">
             Vezi tot →
           </Link>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
         {analize.length === 0 ? (
           <div className="text-center py-10">
             <div className="text-4xl mb-3">🌿</div>
-            <div className="text-stone-400 text-sm mb-3">Nicio analiză încă</div>
+            <div className="text-white/30 text-sm mb-3">Nicio analiză încă</div>
             <Link href="/dashboard/analiza" className="btn-green text-sm py-2 px-5 inline-block">
               Prima analiză →
             </Link>
@@ -233,11 +233,11 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-2">
             {analize.map((a: any, i: number) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-stone-900/[0.025] border border-stone-900/[0.07]">
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
                 <div className="text-xl flex-shrink-0">🌿</div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm text-stone-700">Analiză wellness</div>
-                  <div className="text-xs text-stone-400">
+                  <div className="text-sm text-white/70">Analiză wellness</div>
+                  <div className="text-xs text-white/30">
                     {new Date(a.creat_la).toLocaleDateString('ro-RO')}
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                     <div className="font-fraunces text-lg font-bold" style={{ color: scorColor(a.scor_wellness) }}>
                       {a.scor_wellness}
                     </div>
-                    <div className="text-[10px] text-stone-400">/100</div>
+                    <div className="text-[10px] text-white/30">/100</div>
                   </div>
                 )}
               </div>
@@ -257,7 +257,7 @@ export default function DashboardPage() {
 
       {/* Quick actions */}
       <div>
-        <div className="text-stone-400 text-xs uppercase tracking-wider mb-3">Acțiuni rapide</div>
+        <div className="text-white/30 text-xs uppercase tracking-wider mb-3">Acțiuni rapide</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { href: '/dashboard/analiza',   icon: '🌿', label: 'Analiză Nouă' },
@@ -266,9 +266,9 @@ export default function DashboardPage() {
             { href: '/dashboard/cont',      icon: '👤', label: 'Contul meu' },
           ].map((a) => (
             <Link key={a.href} href={a.href}
-              className="card p-4 text-center hover:bg-stone-900/[0.04] transition-all rounded-xl">
+              className="card p-4 text-center hover:bg-white/[0.05] transition-all rounded-xl">
               <div className="text-2xl mb-2">{a.icon}</div>
-              <div className="text-stone-600 text-xs font-medium">{a.label}</div>
+              <div className="text-white/55 text-xs font-medium">{a.label}</div>
             </Link>
           ))}
         </div>
