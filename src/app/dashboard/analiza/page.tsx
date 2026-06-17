@@ -190,7 +190,7 @@ export default function AnalizaPageV2() {
   const [profil, setProfil]           = useState('')
   const [surse, setSurse]             = useState<Record<string, string>>({})
   const [sursaActiva, setSursaActiva] = useState('analize')
-  const gfitTxtRef = React.useRef('')
+  const gfitTxtRef = useRef('')
   const [loading, setLoading]         = useState(false)
   const [loadMsg, setLoadMsg]         = useState('')
   const [result, setResult]           = useState<any>(null)
