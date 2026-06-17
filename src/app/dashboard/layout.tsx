@@ -72,20 +72,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#13161a] flex items-center justify-center">
+    <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center">
       <div className="text-4xl animate-pulse">🫀</div>
     </div>
   )
 
   const Sidebar = () => (
-    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#13161a]/80 overflow-hidden border-r border-white/[0.05]">
+    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#f5f0e6]/80 overflow-hidden border-r border-stone-900/[0.08]">
       {/* Logo */}
-      <div className="p-5 border-b border-white/[0.05]">
+      <div className="p-5 border-b border-stone-900/[0.08]">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-green-700 to-green-400 rounded-xl flex items-center justify-center text-lg shadow-[0_2px_12px_rgba(34,197,94,0.25)]">🫀</div>
           <div>
             <div className="font-fraunces text-xl font-black text-green-gradient leading-none">be-human</div>
-            <div className="text-[9px] text-white/25 uppercase tracking-[1.5px] mt-0.5">Wellness AI</div>
+            <div className="text-[9px] text-stone-400 uppercase tracking-[1.5px] mt-0.5">Wellness AI</div>
           </div>
         </Link>
       </div>
@@ -94,7 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {trialActiv && (
         <div className="mx-3 mt-3 px-3 py-2 bg-green-500/8 border border-green-500/20 rounded-xl">
           <div className="text-xs text-green-400 font-semibold">⏳ Trial Pro activ</div>
-          <div className="text-[10px] text-white/35 mt-0.5">{trialZile} zile rămase</div>
+          <div className="text-[10px] text-stone-400 mt-0.5">{trialZile} zile rămase</div>
         </div>
       )}
 
@@ -106,26 +106,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="text-base">{item.icon}</span>
             <span>{item.label}</span>
             {item.href === '/dashboard/wearables' && !areAcces(util?.plan || 'free', 'wearables_api') && (
-              <span className="ml-auto text-[9px] text-white/25 uppercase">Plus</span>
+              <span className="ml-auto text-[9px] text-stone-400 uppercase">Plus</span>
             )}
           </Link>
         ))}
       </nav>
 
       {/* Plan + user */}
-      <div className="p-4 border-t border-white/[0.05]">
+      <div className="p-4 border-t border-stone-900/[0.08]">
         {/* Plan status */}
         {analizeRamase !== null && (
-          <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-3 mb-3">
+          <div className="bg-white/60 border border-stone-900/[0.08] rounded-xl p-3 mb-3">
             <div className="flex items-center justify-between mb-1.5">
               <span className={planBadgeClass[util?.plan || 'free']}>{planInfo.label}</span>
-              <span className="text-[10px] text-white/35">{util?.analize_luna || 0}/{planInfo.analize}/lună</span>
+              <span className="text-[10px] text-stone-400">{util?.analize_luna || 0}/{planInfo.analize}/lună</span>
             </div>
-            <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-stone-900/8 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-green-700 to-green-400 rounded-full transition-all"
                 style={{ width: `${Math.min(100, ((util?.analize_luna || 0) / planInfo.analize) * 100)}%` }} />
             </div>
-            <div className="text-[10px] text-white/25 mt-1">{analizeRamase} analize rămase</div>
+            <div className="text-[10px] text-stone-400 mt-1">{analizeRamase} analize rămase</div>
             <Link href="/dashboard/cont" className="block mt-2 text-center text-[11px] text-green-400/70 hover:text-green-400">
               Upgrade →
             </Link>
@@ -135,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="bg-green-500/[0.05] border border-green-500/[0.15] rounded-xl p-3 mb-3">
             <div className="flex items-center gap-2">
               <span className={planBadgeClass[util?.plan || 'free']}>{planInfo.label}</span>
-              <span className="text-[10px] text-white/35">Analize nelimitate</span>
+              <span className="text-[10px] text-stone-400">Analize nelimitate</span>
             </div>
           </div>
         )}
@@ -149,17 +149,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
           }
           <div className="flex-1 min-w-0">
-            <div className="text-white/70 text-xs font-medium truncate">{util?.nume || 'Utilizator'}</div>
-            <div className="text-white/25 text-[10px] truncate">{util?.email}</div>
+            <div className="text-stone-700 text-xs font-medium truncate">{util?.nume || 'Utilizator'}</div>
+            <div className="text-stone-400 text-[10px] truncate">{util?.email}</div>
           </div>
-          <button onClick={logout} className="text-white/20 hover:text-white/50 transition-colors text-xs" title="Logout">⏏</button>
+          <button onClick={logout} className="text-stone-300 hover:text-stone-500 transition-colors text-xs" title="Logout">⏏</button>
         </div>
       </div>
     </aside>
   )
 
   return (
-    <div className="min-h-screen bg-[#13161a] flex">
+    <div className="min-h-screen bg-[#f5f0e6] flex">
       {/* Desktop sidebar */}
       <div className="hidden md:flex flex-col sticky top-0 h-screen">
         <Sidebar />
@@ -176,8 +176,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main */}
       <main className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-white/[0.05] bg-[#13161a]/80">
-          <button onClick={() => setMobileOpen(true)} className="text-white/50 text-xl">☰</button>
+        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-stone-900/[0.08] bg-[#f5f0e6]/80">
+          <button onClick={() => setMobileOpen(true)} className="text-stone-500 text-xl">☰</button>
           <div className="font-fraunces text-lg font-black text-green-gradient">be-human</div>
           <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">
             {(util?.nume || 'U')[0].toUpperCase()}
