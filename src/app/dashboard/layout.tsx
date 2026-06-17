@@ -72,13 +72,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#f5f0e6] flex items-center justify-center">
+    <div className="min-h-screen bg-[#e8ddc8] flex items-center justify-center">
       <div className="text-4xl animate-pulse">🫀</div>
     </div>
   )
 
   const Sidebar = () => (
-    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#f5f0e6]/80 overflow-hidden border-r border-stone-900/[0.08]">
+    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-[#e8ddc8]/80 overflow-hidden border-r border-stone-900/[0.08]">
       {/* Logo */}
       <div className="p-5 border-b border-stone-900/[0.08]">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   return (
-    <div className="min-h-screen bg-[#f5f0e6] flex">
+    <div className="min-h-screen bg-[#e8ddc8] flex">
       {/* Desktop sidebar */}
       <div className="hidden md:flex flex-col sticky top-0 h-screen">
         <Sidebar />
@@ -176,7 +176,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main */}
       <main className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-stone-900/[0.08] bg-[#f5f0e6]/80">
+        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-stone-900/[0.08] bg-[#e8ddc8]/80">
           <button onClick={() => setMobileOpen(true)} className="text-stone-500 text-xl">☰</button>
           <div className="font-fraunces text-lg font-black text-green-gradient">be-human</div>
           <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-sm font-bold text-green-400">
