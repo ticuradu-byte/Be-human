@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Fraunces:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#070d09] text-[#e2ddd6] antialiased">{children}</body>
+      <body className="bg-[#13161a] text-[#e2ddd6] antialiased">{children}</body>
     </html>
   )
 }

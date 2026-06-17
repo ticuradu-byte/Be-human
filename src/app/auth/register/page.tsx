@@ -39,7 +39,7 @@ export default function RegisterPage() {
   }
 
   if (succes) return (
-    <div className="min-h-screen bg-[#070d09] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#13161a] flex items-center justify-center px-4">
       <div className="card p-10 max-w-md w-full text-center fade-in">
         <div className="text-5xl mb-6">📬</div>
         <h2 className="text-2xl font-semibold text-white mb-3">Verifică emailul</h2>
@@ -52,7 +52,7 @@ export default function RegisterPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#070d09] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#13161a] flex items-center justify-center px-4">
       <div className="w-full max-w-md fade-in">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">

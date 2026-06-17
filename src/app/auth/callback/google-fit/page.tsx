@@ -32,7 +32,7 @@ function GoogleFitCallbackContent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#070d09] flex items-center justify-center">
+    <div className="min-h-screen bg-[#13161a] flex items-center justify-center">
       <div className="text-white text-center">
         <div className="text-4xl mb-4">🔵</div>
         <div className="text-lg">{status}</div>
@@ -43,7 +43,7 @@ function GoogleFitCallbackContent() {
 
 export default function GoogleFitCallback() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#070d09]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#13161a]" />}>
       <GoogleFitCallbackContent />
     </Suspense>
   )
