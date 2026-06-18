@@ -188,7 +188,7 @@ export default function ContPage() {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
-                    {p.features.map((f, i) => (
+                    {p.features.map((f: string, i: number) => (
                       <div key={i} className="text-xs text-white/45 flex items-center gap-1.5">
                         <span className="text-green-400 flex-shrink-0">✓</span> {f}
                       </div>

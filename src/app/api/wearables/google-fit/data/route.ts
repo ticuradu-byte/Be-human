@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       if (refreshed.access_token) {
         accessToken = refreshed.access_token
         await supabase.from('utilizatori').update({
-          profil_complet: { ...user.profil_complet, google_fit_token: { ...token, access_token: refreshed.access_token } }
+          profil_complet: { ...(user?.profil_complet || {}), google_fit_token: { ...token, access_token: refreshed.access_token } }
         }).eq('id', userId)
       }
     }

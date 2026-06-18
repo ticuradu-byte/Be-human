@@ -49,7 +49,7 @@ export default function WearablesPage() {
             // Auto-load Google Fit
             if (data.profil_complet?.google_fit_conectat) {
               try {
-                const res = await fetch(`/api/wearables/google-fit/data?user_id=${uid}`)
+                const res = await fetch(`/api/wearables/google-fit/data?user_id=${user.id}`)
                 const gfit = await res.json()
                 if (gfit.ok) {
                   setZile30(gfit.zile || [])

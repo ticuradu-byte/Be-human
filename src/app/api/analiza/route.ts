@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
     console.log('Cache created:', usage.cache_creation_input_tokens || 0)
     console.log('Cache read:', usage.cache_read_input_tokens || 0)
     console.log('Stop reason:', data.stop_reason)
+    console.log('=== RAW RESPONSE (3000):', raw.slice(0, 3000))
     console.log('=== MESAJ (2000):', JSON.stringify(body.messages?.[0]?.content || '').slice(0, 2000))
     console.log('=== MESAJ (2000):', JSON.stringify(body.messages?.[0]?.content || '').slice(0, 2000))
 

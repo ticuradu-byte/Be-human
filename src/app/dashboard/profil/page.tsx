@@ -266,7 +266,7 @@ export default function ProfilPage() {
             const base64 = (ev.target?.result as string).split(',')[1]
             const res = await fetch('https://api.anthropic.com/v1/messages', {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } }, { type: 'text', text: 'Extrage TOATE valorile din această analiză medicală. Format: Parametru: Valoare Unitate pentru fiecare, câte una pe linie. Nimic altceva.' }] }] })
+              body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1000, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } }, { type: 'text', text: 'Extrage TOATE valorile din această analiză medicală. Format: Parametru: Valoare Unitate pentru fiecare, câte una pe linie. Nimic altceva.' }] }] })
             })
             const data = await res.json()
             const text = data.content?.[0]?.text || ''

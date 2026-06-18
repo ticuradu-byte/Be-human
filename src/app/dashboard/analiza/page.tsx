@@ -66,8 +66,10 @@ REGULI STRICTE:
 - Liste: max 3-4 items
 - Nu repeta date din input
 
-JSON OBLIGATORIU (completează toate câmpurile):
-{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1","item2"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
+CÂMPURILE lumina_naturala, conexiune_sociala, sanatate_sexuala și micro_actiune_azi sunt OBLIGATORII în orice raport, chiar dacă utilizatorul nu a dat date despre ele — completează cu recomandare generală bazată pe profil (vârstă/sex). Nu le poți omite sau lăsa goale.
+
+JSON OBLIGATORIU (completează toate câmpurile, NU omite niciun câmp de mai jos):
+{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","micro_actiune_azi":"1 lucru sub 5 minute de făcut chiar acum","lumina_naturala":{"recomandare":"X min soare dimineața","vitamina_d_status":"optim/suboptim"},"conexiune_sociala":{"evaluare":"scurt","actiune_saptamana":"1 acțiune concretă"},"sanatate_sexuala":{"evaluare":"scurt adaptat sex/vârstă","recomandari":["item1","item2"]},"diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt","outdoor_specific":"recomandare concretă în aer liber: parc, traseu, lac — nu generic 'cardio'"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"lumina_naturala":{"recomandare":"min minute soare dimineața + motivul","vitamina_d_status":"optim/suboptim bazat pe analize sau generic"},"conexiune_sociala":{"evaluare":"scurt, bazat pe ce a declarat sau generic","actiune_saptamana":"1 acțiune socială concretă: cină, apel, activitate cu prieten"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1","item2"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt, adaptat sex/vârstă, generic dacă fără date","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
 
 // ── TIPURI SURSE EXTINSE ──────────────────────────────────────────────────────
 const TIPURI_SURSE = [
@@ -377,18 +379,18 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
+          model: 'claude-sonnet-4-5',
           max_tokens: 5000,
           system: systemPrompt,
-          messages: [{ role: 'user', content: 'Analizează complet datele mele și returnează JSON.' }],
+          messages: [{ role: 'user', content: 'Analizează datele mele. JSON OBLIGATORIU să conțină TOATE câmpurile din schemă inclusiv: micro_actiune_azi, lumina_naturala, conexiune_sociala, sanatate_sexuala. Completează cu recomandări generale dacă lipsesc datele specifice.' }],
         }),
       })
 
       const data = await res.json()
-      const parsed = data.result || JSON.parse((data.content?.[0]?.text || "{}").replace(/```json|```/g, "").trim())
+      console.log("DATA FROM API:", JSON.stringify(data).slice(0, 500)); const parsed = data.result || JSON.parse((data.content?.[0]?.text || "{}").replace(/```json|```/g, "").trim())
 
 
-      setResult(parsed)
+      console.log("RESULT COMPLET:", JSON.stringify(parsed, null, 2)); setResult(parsed)
       setActiveTab('overview')
 
       const { data: { user } } = await supabase.auth.getUser()
@@ -414,19 +416,19 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
   const areCGM   = !!surse.cgm?.trim()
 
   const TABS_RESULT = [
-    ['overview', '📊 Overview'],
-    ['insights', '💡 Insights'],
-    ['nutritie', '🥗 Nutriție'],
-    areCiclu ? ['ciclu', '🌙 Ciclu'] : null,
-    areCGM   ? ['cgm_tab', '📈 Glicemie'] : null,
-    ['hormoni', '⚗️ Hormoni'],
-    ['suplimente', '💊 Suplimente'],
-    ['sport', '🏃 Sport'],
-    ['somn', '😴 Somn'],
-    ['mental', '🧠 Mental'],
-    ['sex', '🌹 Sexual'],
-    ['antiaging', '⏳ Anti-aging'],
-    ['mit', '🚫 Mituri'],
+    ['overview', '📊', 'Overview'],
+    ['insights', '💡', 'Insights'],
+    ['nutritie', '🥗', 'Nutriție'],
+    areCiclu ? ['ciclu', '🌙', 'Ciclu'] : null,
+    areCGM   ? ['cgm_tab', '📈', 'Glicemie'] : null,
+    ['hormoni', '⚗️', 'Hormoni'],
+    ['suplimente', '💊', 'Suplimente'],
+    ['sport', '🏃', 'Sport'],
+    ['somn', '😴', 'Somn'],
+    ['mental', '🧠', 'Mental'],
+    ['sex', '🌹', 'Sexual'],
+    ['antiaging', '⏳', 'Anti-aging'],
+    ['mit', '🚫', 'Mituri'],
   ].filter(Boolean) as string[][]
 
   // ── RESULT VIEW ─────────────────────────────────────────────────────────────
@@ -512,16 +514,28 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {TABS_RESULT.map(([k, l]) => (
+        {TABS_RESULT.map(([k, icon, label]) => (
           <button key={k} onClick={() => setActiveTab(k as any)}
-            className={`flex-shrink-0 text-xs font-medium px-3 py-2 rounded-lg transition-all ${
-              activeTab===k ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'text-white/35 hover:text-white/60'
-            }`}>{l}</button>
+            title={label}
+            className={`flex-shrink-0 font-medium px-3 py-2.5 rounded-xl transition-all flex flex-col items-center gap-0.5 min-w-[48px] ${
+              activeTab===k
+                ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                : 'text-white/40 hover:text-white/70 hover:bg-white/[0.04] border border-transparent'
+            }`}>
+            <span className="text-lg leading-none">{icon}</span>
+            <span className="text-[9px] uppercase tracking-wide leading-none">{label?.slice(0,6)}</span>
+          </button>
         ))}
       </div>
 
       {activeTab==='overview' && (
         <div className="space-y-3 fade-in">
+          {result.micro_actiune_azi && (
+            <div className="rounded-xl p-4 bg-green-500/[0.1] border border-green-500/[0.25]">
+              <div className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">⚡ Fă asta acum — sub 5 minute</div>
+              <div className="text-sm text-white/85 font-medium leading-relaxed">{result.micro_actiune_azi}</div>
+            </div>
+          )}
           {result.insights?.slice(0, 3).map((ins: any, i: number) => {
             const c = prColor(ins.prioritate)
             return (
@@ -768,6 +782,30 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
               <div className="mt-3 bg-purple-500/[0.06] border border-purple-500/[0.18] rounded-xl p-3 text-xs text-white/65">{result.sanatate_mintala.viata_sociala}</div>
             )}
           </div>
+
+          {result.lumina_naturala && (
+            <div className="card p-5">
+              <div className="text-[10px] font-bold text-yellow-400 uppercase tracking-wider mb-2">☀️ Lumină naturală & Vitamina D</div>
+              <p className="text-sm text-white/70 leading-relaxed mb-2">{result.lumina_naturala.recomandare}</p>
+              {result.lumina_naturala.vitamina_d_status && (
+                <div className="text-xs text-yellow-400/70 bg-yellow-500/[0.06] rounded-lg px-3 py-2 inline-block">
+                  Status Vit. D: {result.lumina_naturala.vitamina_d_status}
+                </div>
+              )}
+            </div>
+          )}
+
+          {result.conexiune_sociala && (
+            <div className="card p-5">
+              <div className="text-[10px] font-bold text-pink-400 uppercase tracking-wider mb-2">👥 Conexiune socială</div>
+              <p className="text-sm text-white/70 leading-relaxed mb-2">{result.conexiune_sociala.evaluare}</p>
+              {result.conexiune_sociala.actiune_saptamana && (
+                <div className="text-xs text-pink-400/80 bg-pink-500/[0.06] border border-pink-500/[0.15] rounded-lg px-3 py-2">
+                  ✅ {result.conexiune_sociala.actiune_saptamana}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
