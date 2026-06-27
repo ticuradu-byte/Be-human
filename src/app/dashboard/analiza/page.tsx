@@ -74,8 +74,18 @@ Câmpul hormoni.optimizare_naturala este OBLIGATORIU: minim 3 sfaturi concrete d
 
 Câmpul sanatate_mintala.practici trebuie să conțină MINIM 5 practici diverse și dovedite științific (somn, mișcare, respirație, conexiune socială, expunere la natură/lumină, mindfulness, jurnal de recunoștință) — nu doar 2.
 
+Câmpul sanatate_sexuala.etapa_viata este OBLIGATORIU: identifică etapa de viață relevantă din vârsta și sexul din profil (ex. "Adult tânăr" sub 35 ani, "Adult activ" 35-44 ani, "Andropauză" pentru bărbați 45+, "Perimenopauză"/"Menopauză" pentru femei 45+/55+) și adaptează evaluarea și recomandările specific acestei etape — nu generic pentru toate vârstele.
+
+Câmpul sanatate_sexuala.comparatie_populationala este OBLIGATORIU: un mesaj de normalizare bazat pe date populaționale pentru grupa de vârstă/sex din profil (ex. "Frecvența ta este în intervalul normal raportat pentru bărbați 45-50 ani"). Scopul este reducerea anxietății prin context, NU presiune sau judecată.
+
+Câmpul hormoni.etapa_hormonala este OBLIGATORIU: similar cu etapa_viata, context hormonal specific (ex. "Andropauză incipientă", "Perimenopauză", "Adult tânăr cu hormoni stabili").
+
+Câmpul hormoni.medicatie_libido_alert: generează acest câmp DOAR dacă în MEDICATIE SI BOLI există un medicament din clase cunoscute cu efect asupra libidoului — antidepresive ISRS (sertralină, fluoxetină, paroxetină, escitalopram), beta-blocante, anticoncepționale hormonale, finasteridă, antihipertensive. Format: {"medicament":"nume identificat","efect_posibil":"scurt","recomandare":"discută cu medicul despre alternative, nu întrerupe tratamentul fără sfat medical"}. Dacă nu există medicație relevantă în input, OMITE complet acest câmp (nu-l completa cu null sau gol).
+
+PONDERE ÎN SCORUL GENERAL: secțiunile sanatate_sexuala și hormoni au pondere crescută (≈15-20% combinat) în calculul scor_wellness și în diagnostic_functional ATUNCI CÂND utilizatorul a completat date de profil relevante (vârstă, sex, medicație, simptome hormonale) — nu le trata ca secțiuni secundare/decorative. Dacă diagnostic_functional sau cercul_vicios/cercul_virtuos pot integra un element hormonal/sexual relevant (ex. stres → cortizol → libido → relație), fă legătura explicit, nu le trata izolat.
+
 JSON OBLIGATORIU (completează toate câmpurile, NU omite niciun câmp de mai jos):
-{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","micro_actiune_azi":"1 lucru sub 5 minute de făcut chiar acum","lumina_naturala":{"recomandare":"X min soare dimineața","vitamina_d_status":"optim/suboptim"},"conexiune_sociala":{"evaluare":"scurt","actiune_saptamana":"1 acțiune concretă"},"sanatate_sexuala":{"evaluare":"scurt adaptat sex/vârstă","frecventa_recomandata":"X ori/săptămână — calculat din vârsta și sexul din profil, bazat pe studii (beneficii CV, hormonale, longevitate)","recomandari":["item1","item2"]},"diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"],"optimizare_naturala":["sfat1 dovedit clinic pentru creșterea testosteronului/hormonilor benefici, adaptat sex/vârstă","sfat2","sfat3"],"hormoni_de_verificat":["analiza1 adaptată sexului din profil","analiza2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt","outdoor_specific":"recomandare concretă în aer liber: parc, traseu, lac — nu generic 'cardio'"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"lumina_naturala":{"recomandare":"min minute soare dimineața + motivul","vitamina_d_status":"optim/suboptim bazat pe analize sau generic"},"conexiune_sociala":{"evaluare":"scurt, bazat pe ce a declarat sau generic","actiune_saptamana":"1 acțiune socială concretă: cină, apel, activitate cu prieten"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1 (somn)","item2 (miscare)","item3 (respiratie)","item4 (conexiune sociala/natura)","item5 (mindfulness)"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt, adaptat sex/vârstă, generic dacă fără date","frecventa_recomandata":"recomandare specifică de frecvență (X ori/săptămână) bazată pe studii, adaptată exact la vârsta și sexul din profil — nu generic","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
+{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","micro_actiune_azi":"1 lucru sub 5 minute de făcut chiar acum","lumina_naturala":{"recomandare":"X min soare dimineața","vitamina_d_status":"optim/suboptim"},"conexiune_sociala":{"evaluare":"scurt","actiune_saptamana":"1 acțiune concretă"},"sanatate_sexuala":{"evaluare":"scurt adaptat sex/vârstă","etapa_viata":"Adult activ/Andropauză/Perimenopauză — calculat din vârstă+sex","frecventa_recomandata":"X ori/săptămână — calculat din vârsta și sexul din profil, bazat pe studii (beneficii CV, hormonale, longevitate)","comparatie_populationala":"mesaj de normalizare bazat pe date populaționale pentru grupa de vârstă/sex","recomandari":["item1","item2"]},"diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","etapa_hormonala":"Andropauză incipientă/Perimenopauză/Adult tânăr stabil","prioritati":["item1","item2"],"optimizare_naturala":["sfat1 dovedit clinic pentru creșterea testosteronului/hormonilor benefici, adaptat sex/vârstă","sfat2","sfat3"],"hormoni_de_verificat":["analiza1 adaptată sexului din profil","analiza2"],"medicatie_libido_alert":{"medicament":"OMITE complet câmpul dacă nu există medicație relevantă","efect_posibil":"scurt","recomandare":"discută cu medicul despre alternative"}},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt","outdoor_specific":"recomandare concretă în aer liber: parc, traseu, lac — nu generic 'cardio'"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"lumina_naturala":{"recomandare":"min minute soare dimineața + motivul","vitamina_d_status":"optim/suboptim bazat pe analize sau generic"},"conexiune_sociala":{"evaluare":"scurt, bazat pe ce a declarat sau generic","actiune_saptamana":"1 acțiune socială concretă: cină, apel, activitate cu prieten"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1 (somn)","item2 (miscare)","item3 (respiratie)","item4 (conexiune sociala/natura)","item5 (mindfulness)"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt, adaptat sex/vârstă, generic dacă fără date","etapa_viata":"Adult activ/Andropauză/Perimenopauză — calculat din vârstă+sex","frecventa_recomandata":"recomandare specifică de frecvență (X ori/săptămână) bazată pe studii, adaptată exact la vârsta și sexul din profil — nu generic","comparatie_populationala":"mesaj de normalizare bazat pe date populaționale pentru grupa de vârstă/sex","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
 
 // ── TIPURI SURSE EXTINSE ──────────────────────────────────────────────────────
 const TIPURI_SURSE = [
@@ -130,6 +140,95 @@ function buildProfilText(p: any): string {
   return parts.join(', ')
 }
 
+// ── EXTRAGERE VALORI ANALIZE MEDICALE ─────────────────────────────────────────
+// Formatul real extras din PDF-uri (Regina Maria și majoritatea laboratoarelor RO)
+// e "VALOARE ETICHETĂ UNITATE [INTERVAL]" (ex: "283 COLESTEROL TOTAL mg/dL [120-200]"),
+// totul concatenat fără linii separate. Căutăm explicit fiecare parametru cunoscut,
+// ca să trimitem către AI doar valorile reale, compact — nu textul brut (care poate
+// avea 8000+ caractere și se taie înainte să ajungă la rezultatele relevante).
+const PARAMETRI_MEDICALI: [string, RegExp][] = [
+  ['Colesterol total', /colesterol total/i],
+  ['HDL colesterol', /hdl colesterol/i],
+  ['LDL colesterol', /ldl colesterol/i],
+  ['Colesterol non-HDL', /colesterol non-hdl|nonhdl/i],
+  ['Trigliceride', /trigliceride/i],
+  ['Glicemie', /glucoza serica \(glicemie\)|glicemie/i],
+  ['HbA1c', /hemoglobina glicozilata|hb a1c/i],
+  ['Creatinina', /creatinina seric/i],
+  ['Uree', /\buree\b/i],
+  ['Acid uric', /acid uric/i],
+  ['Calciu', /calciu seric/i],
+  ['Magneziu', /magneziu seric/i],
+  ['Potasiu', /potasiu seric/i],
+  ['Sodiu', /sodiu seric/i],
+  ['Fier seric', /fier seric/i],
+  ['TSH', /\btsh\b/i],
+  ['FT4', /\bft4\b/i],
+  ['FT3', /\bft3\b/i],
+  ['Vitamina D', /(?:25-oh-)?vitamina d/i],
+  ['Hemoglobina', /hemoglobina \(hgb\)/i],
+  ['Hematocrit', /hematocrit/i],
+  ['Leucocite', /numar de leucocite/i],
+  ['Trombocite', /numar de trombocite/i],
+  ['VSH', /\bvsh\b/i],
+  ['ALT', /alaninaminotransferaza/i],
+  ['AST', /aspartataminotransferaza/i],
+  ['Apolipoproteina A1', /apolipoproteina a1/i],
+  ['Apolipoproteina B', /apolipoproteina b/i],
+  ['Insulina', /\binsulina\b/i],
+  ['HOMA-IR', /homa-ir/i],
+  ['HOMA-B', /\bhoma b\b|homa-b/i],
+  ['eGFR', /rata estimata a filtrarii glomerulare|\begfr\b/i],
+  ['Creatinkinaza', /creatinkinaza/i],
+  ['Anti-TPO', /anticorpi anti-tpo/i],
+  ['Feritina', /\bferitina\b/i],
+  ['CRP', /proteina c reactiva|\bcrp\b/i],
+  ['Testosteron', /testosteron/i],
+  ['Cortizol', /\bcortizol\b/i],
+  ['Estradiol', /estradiol/i],
+  ['Progesteron', /progesteron/i],
+  ['Homocisteina', /homocisteina/i],
+]
+
+const UNITATE_REGEX_ANALIZE = /(mg\/dL|mg\/dl|g\/L|g\/dL|ng\/mL|[µμ]?UI\/mL|mmol\/L|pg|fL|%|U\/L|mil\.\/[µμ]L|mii\/[µμ]L|[µμ]g\/dL|mm\/h|pmol\/L|ml\/min[^\s,]*|[µμ]U\/mL)/i
+
+function extrageParametruMedical(text: string, label: string, labelRegexBase: RegExp): string | null {
+  const labelRegexGlobal = new RegExp(labelRegexBase.source, 'gi')
+  let m: RegExpExecArray | null
+  while ((m = labelRegexGlobal.exec(text)) !== null) {
+    const idx = m.index
+    const inainte = text.slice(Math.max(0, idx - 20), idx)
+    const numarMatch = inainte.match(/(\d+[.,]\d+|\d+)\s*$/)
+    if (numarMatch) {
+      const valoare = numarMatch[1]
+      const dupa = text.slice(idx, idx + m[0].length + 70)
+      const unitateMatch = dupa.match(UNITATE_REGEX_ANALIZE)
+      const unitate = unitateMatch ? unitateMatch[0] : ''
+      const rangeMatch = dupa.match(/[\[<≥≤>]\s*[\d.,\s\-≥≤<>]+\)?\]?/)
+      const range = rangeMatch ? ' ' + rangeMatch[0].trim() : ''
+      return `${label}: ${valoare} ${unitate}${range}`.trim()
+    }
+  }
+  return null
+}
+
+function extrageAnalizeMedicale(textBrut: string): string {
+  if (!textBrut || textBrut.length < 200) return textBrut
+  // Elimină secțiunea de istoric ("evoluția în timp") — sursă de confuzie cu valori vechi
+  const evolutieIdx = textBrut.search(/iata\s+evolu[tț]ia\s+in\s+timp/i)
+  const textCurent = evolutieIdx > -1 ? textBrut.slice(0, evolutieIdx) : textBrut
+
+  const rezultate: string[] = []
+  for (const [label, regex] of PARAMETRI_MEDICALI) {
+    const r = extrageParametruMedical(textCurent, label, regex)
+    if (r) rezultate.push(r)
+  }
+  if (rezultate.length >= 3) return rezultate.join('\n')
+  // Format necunoscut — trimitem un fragment mai mare decât înainte (1200→4000),
+  // ca să nu fie nevoie să "ghicească" AI-ul din cauza trunchierii premature
+  return textCurent.slice(0, 4000)
+}
+
 // ── HELPER: construiește surse din profil_complet ─────────────────────────────
 function buildSurseFromProfil(p: any): Record<string, string> {
   if (!p) return {}
@@ -161,9 +260,9 @@ function buildSurseFromProfil(p: any): Record<string, string> {
   if (p.spo2)        vitale.push('SpO2: ' + p.spo2 + '%')
   if (vitale.length) surse.vitale = vitale.join('\n')
 
-  // ANALIZE — PDF/text
+  // ANALIZE — PDF/text (extragere directionată, nu trunchiere brută)
   const analizeText = p.analize_text || ''
-  if (analizeText) surse.analize = analizeText.slice(0, 1200)
+  if (analizeText) surse.analize = extrageAnalizeMedicale(analizeText)
 
   // STIL VIATA → note
   const note: string[] = []
@@ -733,7 +832,12 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
       {activeTab==='hormoni' && result.hormoni && (
         <div className="space-y-3 fade-in">
           <div className="card p-5">
-            <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-3">⚗️ Evaluare hormonală</div>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider">⚗️ Evaluare hormonală</div>
+              {result.hormoni.etapa_hormonala && (
+                <span className="text-[10px] text-purple-300 bg-purple-500/[0.12] border border-purple-500/[0.25] px-2.5 py-1 rounded-full">{result.hormoni.etapa_hormonala}</span>
+              )}
+            </div>
             <p className="text-sm text-white/70 leading-relaxed mb-3">{result.hormoni.evaluare}</p>
             {result.hormoni.prioritati?.map((h: string,i: number) => (
               <div key={i} className="flex gap-2 py-2 border-t border-white/[0.05]">
@@ -742,6 +846,18 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
               </div>
             ))}
           </div>
+          {result.hormoni.medicatie_libido_alert && (
+            <div style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.3)', borderLeft: '4px solid #ef4444' }} className="rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">💊</span>
+                <div>
+                  <div className="text-sm font-bold text-red-400 mb-1">Posibilă interacțiune medicație ↔ libido: {result.hormoni.medicatie_libido_alert.medicament}</div>
+                  <div className="text-xs text-white/65 leading-relaxed mb-1">{result.hormoni.medicatie_libido_alert.efect_posibil}</div>
+                  <div className="text-xs font-semibold text-red-400">→ {result.hormoni.medicatie_libido_alert.recomandare}</div>
+                </div>
+              </div>
+            </div>
+          )}
           {result.hormoni.optimizare_naturala?.length > 0 && (
             <div className="bg-amber-500/[0.06] border border-amber-500/[0.18] rounded-xl p-5">
               <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-3">⚡ Optimizare hormonală naturală</div>
@@ -836,13 +952,22 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
 
       {activeTab==='sex' && result.sanatate_sexuala && (
         <div className="space-y-3 fade-in">
-          <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs text-white/30 leading-relaxed">
-            🌹 Informații educaționale bazate pe studii clinice. Consultați un specialist pentru probleme specifice.
+          <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs text-white/30 leading-relaxed flex items-center justify-between flex-wrap gap-2">
+            <span>🌹 Informații educaționale bazate pe studii clinice. Consultați un specialist pentru probleme specifice.</span>
+            {result.sanatate_sexuala.etapa_viata && (
+              <span className="text-[10px] text-pink-300 bg-pink-500/[0.12] border border-pink-500/[0.25] px-2.5 py-1 rounded-full flex-shrink-0">{result.sanatate_sexuala.etapa_viata}</span>
+            )}
           </div>
           {result.sanatate_sexuala.frecventa_recomandata && (
             <div className="bg-pink-500/[0.08] border border-pink-500/[0.2] rounded-xl p-4">
               <div className="text-[10px] font-bold text-pink-400 uppercase tracking-wider mb-1.5">💕 Frecvență recomandată pentru profilul tău</div>
               <div className="text-sm text-white/85 font-medium leading-relaxed">{result.sanatate_sexuala.frecventa_recomandata}</div>
+            </div>
+          )}
+          {result.sanatate_sexuala.comparatie_populationala && (
+            <div className="bg-green-500/[0.06] border border-green-500/[0.18] rounded-xl p-4">
+              <div className="text-[10px] font-bold text-green-400 uppercase tracking-wider mb-1.5">📊 Context — nu ești singur(ă)</div>
+              <div className="text-sm text-white/75 leading-relaxed">{result.sanatate_sexuala.comparatie_populationala}</div>
             </div>
           )}
           <div className="card p-5">
