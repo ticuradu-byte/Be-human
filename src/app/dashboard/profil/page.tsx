@@ -90,7 +90,7 @@ const WEARABLES_LISTA = [
   { id: 'hevy',       icon: '🏋️', label: 'Hevy',               desc: 'Export CSV antrenamente',            tip: 'csv' },
   { id: 'runalyze',   icon: '🏃', label: 'Runalyze',           desc: 'Export CSV activități',              tip: 'csv' },
   // ── În curând ────────────────────────────────────────────────────────────
-  { id: 'withings',   icon: '⚖️', label: 'Withings',           desc: 'Cântar + tensiometru smart',         tip: 'soon' },
+  { id: 'withings',   icon: '⚖️', label: 'Withings',           desc: 'Cântar + tensiometru smart',         tip: 'oauth_withings' },
   { id: 'polar',      icon: '❄️', label: 'Polar Flow',         desc: 'În curând',                          tip: 'soon' },
 ]
 
@@ -188,6 +188,9 @@ export default function ProfilPage() {
         setProfil(p => ({ ...p, ...data.profil_complet }))
         if (data.profil_complet.google_fit_conectat) {
           setWearableStatus(p => ({ ...p, googlefit: true, healthconn: true }))
+        }
+        if (data.profil_complet.withings_conectat) {
+          setWearableStatus(p => ({ ...p, withings: true }))
         }
       }
       if (data?.nume) setProfil(p => ({ ...p, prenume: data.nume }))
@@ -713,6 +716,12 @@ export default function ProfilPage() {
                 )}
                 {w.tip === 'android_info' && (
                   <span className="text-white/25 text-xs">Via Google Fit</span>
+                )}
+                {w.tip === 'oauth_withings' && !wearableStatus[w.id] && (
+                  <a href="/dashboard/wearables" className="btn-green text-xs py-2 px-4 flex-shrink-0">Conectează →</a>
+                )}
+                {w.tip === 'oauth_withings' && wearableStatus[w.id] && (
+                  <span className="text-green-400 text-sm font-medium">✅ Conectat</span>
                 )}
                 {w.tip === 'csv' && (
                   <a href="/dashboard/analiza" className="btn-ghost text-xs py-2 px-4 flex-shrink-0">📎 Import CSV →</a>
