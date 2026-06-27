@@ -1,6 +1,6 @@
 'use client'
 // src/components/DescarcaPDF.tsx
-// Buton descărcare raport PDF — folosit în pagina istoric și cont
+// Buton descărcare raport PDF — folosit în pagina istoric, cont și dashboard
 
 import { useState } from 'react'
 
@@ -32,17 +32,16 @@ export default function DescarcaPDF({
 
       const { html, filename } = await res.json()
 
-      // Deschide HTML în tab nou → utilizatorul printează ca PDF (Ctrl+P → Save as PDF)
+      // Deschide HTML în tab nou. Utilizatorul decide singur dacă
+      // vrea să printeze / să salveze ca PDF (Ctrl+P → Save as PDF).
+      // NU mai declanșăm automat dialogul de print.
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
       const url  = URL.createObjectURL(blob)
       const win  = window.open(url, '_blank')
 
       if (win) {
-        // Adaugă instrucțiuni de printare
         win.onload = () => {
           win.document.title = filename.replace('.pdf', '')
-          // Trigger print dialog după 1 secundă
-          setTimeout(() => win.print(), 1000)
         }
       }
 

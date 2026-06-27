@@ -23,6 +23,7 @@ export default function WearablesPage() {
   const [ouraStatus, setOuraStatus] = useState<any>(null)
   const [garminStatus, setGarminStatus] = useState<any>(null)
   const [dateWearable, setDateWearable] = useState<any>(null)
+  const [withingsData, setWithingsData] = useState<any>(null)
   const [zile30, setZile30] = useState<any[]>([])
   const [metricaGrafic, setMetricaGrafic] = useState<'pasi'|'calorii'|'minute_active'>('pasi')
   const [tooltipGrafic, setTooltipGrafic] = useState<{x: number, y: number, text: string} | null>(null)
@@ -61,6 +62,14 @@ export default function WearablesPage() {
                   setTab('date')
                 }
               } catch(e) { console.log('GFit auto-load:', e) }
+            }
+            // Auto-load Withings
+            if (data.profil_complet?.withings_conectat) {
+              try {
+                const res = await fetch(`/api/wearables/withings/data?user_id=${user.id}`)
+                const wd = await res.json()
+                if (wd.ok) setWithingsData(wd)
+              } catch(e) { console.log('Withings auto-load:', e) }
             }
           }
         })
@@ -148,7 +157,7 @@ export default function WearablesPage() {
     finally { setSyncing(false) }
   }
 
-  const oricareConetat = ouraStatus?.conectat || garminStatus?.conectat || util?.profil_complet?.google_fit_conectat
+  const oricareConetat = ouraStatus?.conectat || garminStatus?.conectat || util?.profil_complet?.google_fit_conectat || util?.profil_complet?.withings_conectat
   const comb = dateWearable?.combinat || {}
 
   // ── GATE: plan insuficient ─────────────────────────────────────────────────
@@ -290,11 +299,29 @@ export default function WearablesPage() {
               </div>
             </div>
           </div>
+
+          {/* Withings */}
+          <div className="card p-5">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">⚖️</div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-semibold text-white/85 text-sm">Withings</div>
+                  {(util as any)?.profil_complet?.withings_conectat
+                    ? <span className="text-xs text-green-400 font-medium">✅ Conectat</span>
+                    : <button onClick={() => window.location.href = `/api/wearables/withings?user_id=${userId}`}
+                        className="btn-green text-xs py-1.5 px-4">Conectează →</button>
+                  }
+                </div>
+                <div className="text-xs text-white/40">Greutate, compoziție corporală, tensiune arterială, somn</div>
+              </div>
+            </div>
+          </div>
           {/* Viitoare */}
           <div className="card p-4">
             <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider mb-3">🔜 Disponibile în curând</div>
             <div className="grid grid-cols-3 gap-2">
-              {[{ icon: '📱', l: 'Zepp/Amazfit' }, { icon: '💙', l: 'Samsung Health' }, { icon: '❄️', l: 'Polar' }, { icon: '💚', l: 'Fitbit' }, { icon: '⚖️', l: 'Withings' }, { icon: '💪', l: 'WHOOP' }].map((p, i) => (
+              {[{ icon: '📱', l: 'Zepp/Amazfit' }, { icon: '💙', l: 'Samsung Health' }, { icon: '❄️', l: 'Polar' }, { icon: '💚', l: 'Fitbit' }, { icon: '💪', l: 'WHOOP' }].map((p, i) => (
                 <div key={i} className="p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl text-center opacity-50">
                   <div className="text-xl mb-1">{p.icon}</div>
                   <div className="text-[10px] text-white/45">{p.l}</div>
@@ -517,6 +544,33 @@ export default function WearablesPage() {
 
               <button onClick={() => setTab('conectare')} className="btn-ghost text-sm py-2.5 w-full">← Înapoi la conectare</button>
             </>
+          )}
+
+          {/* Withings — afișat independent, indiferent de starea dateWearable */}
+          {withingsData?.azi && (
+            <div className="card p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">⚖️</span>
+                <div className="text-[10px] font-bold text-white/25 uppercase tracking-wider">Withings · {withingsData.azi.data}</div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {[
+                  { l: 'Greutate', v: withingsData.azi.greutate_kg ? `${withingsData.azi.greutate_kg}kg` : '—' },
+                  { l: 'Masă grasă', v: withingsData.azi.masa_grasa_pct ? `${withingsData.azi.masa_grasa_pct}%` : '—' },
+                  { l: 'Masă musculară', v: withingsData.azi.masa_musculara_kg ? `${withingsData.azi.masa_musculara_kg}kg` : '—' },
+                  { l: 'Hidratare', v: withingsData.azi.hidratare_kg ? `${withingsData.azi.hidratare_kg}kg` : '—' },
+                  { l: 'Tensiune', v: (withingsData.azi.tensiune_sistolica && withingsData.azi.tensiune_diastolica) ? `${withingsData.azi.tensiune_sistolica}/${withingsData.azi.tensiune_diastolica}` : '—' },
+                  { l: 'Puls', v: withingsData.azi.puls ? `${withingsData.azi.puls}bpm` : '—' },
+                  { l: 'Scor somn', v: withingsData.azi.somn_scor ? `${withingsData.azi.somn_scor}/100` : '—' },
+                  { l: 'Somn total', v: withingsData.azi.somn_total_min ? `${Math.round(withingsData.azi.somn_total_min/60*10)/10}h` : '—' },
+                ].map((m, i) => (
+                  <div key={i} className="p-2 bg-cyan-500/[0.04] border border-cyan-500/[0.12] rounded-lg text-center">
+                    <div className="text-sm font-semibold text-white/75">{m.v}</div>
+                    <div className="text-[9px] text-white/30 uppercase tracking-wide mt-0.5">{m.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

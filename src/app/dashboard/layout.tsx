@@ -15,6 +15,7 @@ const NAV = [
   { href: '/dashboard/wearables',    icon: '⌚', label: 'Wearables' },
   { href: '/dashboard/istoric',      icon: '📈', label: 'Istoric & Trend' },
   { href: '/dashboard/predictie',    icon: '🔮', label: 'Predicție Sănătate' },
+  { href: '/dashboard/glosar',       icon: '📚', label: 'Glosar' },
   { href: '/dashboard/roata-vietii', icon: '⚖️', label: 'Roata Vieții' },
   { href: '/dashboard/challenge',    icon: '🏆', label: 'Challenge' },
   { href: '/dashboard/recuperare',   icon: '🔄', label: 'Recuperare' },
@@ -99,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto min-h-0">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto min-h-0 sidebar-scroll">
         {NAV.map(item => (
           <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
             className={pathname === item.href ? 'nav-item-active' : 'nav-item'}>

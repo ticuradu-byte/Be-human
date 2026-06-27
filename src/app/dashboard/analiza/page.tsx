@@ -68,8 +68,14 @@ REGULI STRICTE:
 
 CÂMPURILE lumina_naturala, conexiune_sociala, sanatate_sexuala și micro_actiune_azi sunt OBLIGATORII în orice raport, chiar dacă utilizatorul nu a dat date despre ele — completează cu recomandare generală bazată pe profil (vârstă/sex). Nu le poți omite sau lăsa goale.
 
+Câmpul sanatate_sexuala.frecventa_recomandata este OBLIGATORIU: o recomandare CONCRETĂ de frecvență (ex. "1-2 ori/săptămână") calculată exact din vârsta și sexul din profilul utilizatorului, menționând scurt beneficiul (cardiovascular, hormonal, longevitate) — niciodată generică, niciodată omisă.
+
+Câmpul hormoni.optimizare_naturala este OBLIGATORIU: minim 3 sfaturi concrete dovedite clinic pentru optimizarea naturală a hormonilor (testosteron/DHEA la bărbați, estrogen/progesteron la femei) — somn 7-9h, antrenament de forță, vitamina D, zinc/magneziu, reducere cortizol/stres, alimentație cu grăsimi sănătoase. Câmpul hormoni.hormoni_de_verificat trebuie să recomande analize specifice adaptate sexului din profil (bărbați: testosteron total/liber, SHBG, DHEA, cortizol; femei: estrogen, progesteron, TSH, prolactină).
+
+Câmpul sanatate_mintala.practici trebuie să conțină MINIM 5 practici diverse și dovedite științific (somn, mișcare, respirație, conexiune socială, expunere la natură/lumină, mindfulness, jurnal de recunoștință) — nu doar 2.
+
 JSON OBLIGATORIU (completează toate câmpurile, NU omite niciun câmp de mai jos):
-{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","micro_actiune_azi":"1 lucru sub 5 minute de făcut chiar acum","lumina_naturala":{"recomandare":"X min soare dimineața","vitamina_d_status":"optim/suboptim"},"conexiune_sociala":{"evaluare":"scurt","actiune_saptamana":"1 acțiune concretă"},"sanatate_sexuala":{"evaluare":"scurt adaptat sex/vârstă","recomandari":["item1","item2"]},"diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt","outdoor_specific":"recomandare concretă în aer liber: parc, traseu, lac — nu generic 'cardio'"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"lumina_naturala":{"recomandare":"min minute soare dimineața + motivul","vitamina_d_status":"optim/suboptim bazat pe analize sau generic"},"conexiune_sociala":{"evaluare":"scurt, bazat pe ce a declarat sau generic","actiune_saptamana":"1 acțiune socială concretă: cină, apel, activitate cu prieten"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1","item2"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt, adaptat sex/vârstă, generic dacă fără date","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
+{"scor_wellness":75,"scor_label":"Bine","salut":"1 propoziție scurtă","micro_actiune_azi":"1 lucru sub 5 minute de făcut chiar acum","lumina_naturala":{"recomandare":"X min soare dimineața","vitamina_d_status":"optim/suboptim"},"conexiune_sociala":{"evaluare":"scurt","actiune_saptamana":"1 acțiune concretă"},"sanatate_sexuala":{"evaluare":"scurt adaptat sex/vârstă","frecventa_recomandata":"X ori/săptămână — calculat din vârsta și sexul din profil, bazat pe studii (beneficii CV, hormonale, longevitate)","recomandari":["item1","item2"]},"diagnostic_functional":"max 2 propoziții","urmatorul_pas":"1 acțiune concretă","cercul_vicios":"optional scurt","cercul_virtuos":"optional scurt","alerte_medicale":[{"parametru":"nume","valoare":"X mg/dL","nivel":"rosu","mesaj":"scurt","actiune":"scurt","urgenta":"X zile"}],"insights":[{"icon":"emoji","titlu":"3-5 cuvinte","descriere":"max 15 cuvinte","actiune":"max 10 cuvinte","prioritate":"ridicata","categorie":"tip","mecanism":"scurt","citare":"","impact":"scurt"}],"nutritie":{"calorii_recomandate":2000,"proteine_g":150,"carbohidrati_g":200,"grasimi_g":70,"apa_litri":2.5,"alimente_prioritare":["item1","item2","item3"],"alimente_reduce":["item1","item2"],"plan_zi":{"dimineata":"scurt","pranz":"scurt","seara":"scurt"}},"hormoni":{"evaluare":"scurt","prioritati":["item1","item2"],"optimizare_naturala":["sfat1 dovedit clinic pentru creșterea testosteronului/hormonilor benefici, adaptat sex/vârstă","sfat2","sfat3"],"hormoni_de_verificat":["analiza1 adaptată sexului din profil","analiza2"]},"sport":{"evaluare_curenta":"scurt","zona_recomandata":"scurt","plan_saptamana":"scurt","recuperare":"scurt","outdoor_specific":"recomandare concretă în aer liber: parc, traseu, lac — nu generic 'cardio'"},"somn":{"evaluare":"scurt","protocoale":["item1","item2"],"ora_culcare":"22:30","suplimente_somn":"optional"},"lumina_naturala":{"recomandare":"min minute soare dimineața + motivul","vitamina_d_status":"optim/suboptim bazat pe analize sau generic"},"conexiune_sociala":{"evaluare":"scurt, bazat pe ce a declarat sau generic","actiune_saptamana":"1 acțiune socială concretă: cină, apel, activitate cu prieten"},"sanatate_mintala":{"evaluare":"scurt","practici":["item1 (somn)","item2 (miscare)","item3 (respiratie)","item4 (conexiune sociala/natura)","item5 (mindfulness)"],"viata_sociala":"scurt"},"sanatate_sexuala":{"evaluare":"scurt, adaptat sex/vârstă, generic dacă fără date","frecventa_recomandata":"recomandare specifică de frecvență (X ori/săptămână) bazată pe studii, adaptată exact la vârsta și sexul din profil — nu generic","recomandari":["item1","item2"]},"anti_aging":{"varsta_biologica":"X ani","prioritati":["item1","item2"],"analize_recomandate":["item1","item2"]},"suplimente_sigure":[{"supliment":"Nume","doza":"Xmg","motiv":"scurt","timing":"dimineata","citare":""}],"suplimente_contraindicate":[],"mit_demontat":"max 20 cuvinte","disclaimer":"Informații educaționale. Urgențe: 112"}`
 
 // ── TIPURI SURSE EXTINSE ──────────────────────────────────────────────────────
 const TIPURI_SURSE = [
@@ -736,6 +742,25 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
               </div>
             ))}
           </div>
+          {result.hormoni.optimizare_naturala?.length > 0 && (
+            <div className="bg-amber-500/[0.06] border border-amber-500/[0.18] rounded-xl p-5">
+              <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-3">⚡ Optimizare hormonală naturală</div>
+              {result.hormoni.optimizare_naturala.map((o: string,i: number) => (
+                <div key={i} className="flex gap-2 py-2 border-t border-amber-500/[0.1]">
+                  <span className="text-amber-400 flex-shrink-0">💪</span>
+                  <span className="text-sm text-white/65 leading-relaxed">{o}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {result.hormoni.hormoni_de_verificat?.length > 0 && (
+            <div className="bg-indigo-500/[0.06] border border-indigo-500/[0.15] rounded-xl p-5">
+              <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-3">🧪 Hormoni de verificat (analize)</div>
+              {result.hormoni.hormoni_de_verificat.map((h: string,i: number) => (
+                <div key={i} className="text-xs text-white/55 mb-1.5 pl-2 border-l-2 border-indigo-500/30 leading-relaxed">{h}</div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -814,6 +839,12 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
           <div className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-xs text-white/30 leading-relaxed">
             🌹 Informații educaționale bazate pe studii clinice. Consultați un specialist pentru probleme specifice.
           </div>
+          {result.sanatate_sexuala.frecventa_recomandata && (
+            <div className="bg-pink-500/[0.08] border border-pink-500/[0.2] rounded-xl p-4">
+              <div className="text-[10px] font-bold text-pink-400 uppercase tracking-wider mb-1.5">💕 Frecvență recomandată pentru profilul tău</div>
+              <div className="text-sm text-white/85 font-medium leading-relaxed">{result.sanatate_sexuala.frecventa_recomandata}</div>
+            </div>
+          )}
           <div className="card p-5">
             <p className="text-sm text-white/70 leading-relaxed mb-3">{result.sanatate_sexuala.evaluare}</p>
             {result.sanatate_sexuala.recomandari?.map((r: string,i: number) => (

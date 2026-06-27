@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createBrowserClient, PLANURI } from '@/lib/supabase'
 import Link from 'next/link'
+import RaportComplet from '@/components/RaportComplet'
 
 function scorColor(s: number) { return s >= 75 ? '#4ade80' : s >= 55 ? '#facc15' : '#f87171' }
 function scorLabel(s: number) { return s >= 85 ? 'Zi de top' : s >= 70 ? 'Excelent' : s >= 55 ? 'Bun' : s >= 40 ? 'Ok' : 'Slab' }
@@ -214,6 +215,16 @@ export default function DashboardPage() {
           )}
         </div>
       )}
+
+      {/* Ultimul raport wellness complet — toate secțiunile, sub Google Fit */}
+      {analize[0]?.rezultat_json && (
+        <RaportComplet
+          result={analize[0].rezultat_json}
+          analizaId={analize[0].id}
+          dataAnaliza={new Date(analize[0].creat_la).toLocaleDateString('ro-RO')}
+        />
+      )}
+
       {/* Analize recente */}
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
