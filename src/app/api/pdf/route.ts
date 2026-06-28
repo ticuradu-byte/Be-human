@@ -261,6 +261,119 @@ function generatePDFHTML(util: any, analiza: any, jurnal: any[]): string {
     <p style="font-size:9px;color:#9ca3af;margin-top:6px;">⚠️ Consultați medicul sau farmacistul înainte de a începe orice supliment.</p>
   </div>` : ''}
 
+  <!-- HORMONI -->
+  ${data.hormoni ? `
+  <div class="section">
+    <div class="section-title">⚗️ Hormoni ${data.hormoni.etapa_hormonala ? `<span style="font-size:9px;font-weight:600;color:#7c3aed;background:#f3e8ff;padding:2px 8px;border-radius:10px;text-transform:none;letter-spacing:0;margin-left:6px;">${data.hormoni.etapa_hormonala}</span>` : ''}</div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <p>${data.hormoni.evaluare || '—'}</p>
+      ${(data.hormoni.prioritati || []).map((p: string) => `<p style="margin-top:4px;">→ ${p}</p>`).join('')}
+    </div>
+    ${data.hormoni.medicatie_libido_alert ? `
+    <div class="alerta-ros" style="margin-bottom:10px;">
+      <div class="alerta-title" style="color:#dc2626;">💊 Posibilă interacțiune medicație ↔ libido: ${data.hormoni.medicatie_libido_alert.medicament}</div>
+      <div style="font-size:10px;color:#374151;">${data.hormoni.medicatie_libido_alert.efect_posibil}</div>
+      <div style="font-size:10px;font-weight:600;color:#dc2626;margin-top:4px;">→ ${data.hormoni.medicatie_libido_alert.recomandare}</div>
+    </div>` : ''}
+    ${data.hormoni.optimizare_naturala?.length ? `
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:6px;">⚡ Optimizare hormonală naturală</div>
+      ${data.hormoni.optimizare_naturala.map((o: string) => `<p style="margin-top:3px;">💪 ${o}</p>`).join('')}
+    </div>` : ''}
+    ${data.hormoni.hormoni_de_verificat?.length ? `
+    <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px;">
+      <div style="font-size:10px;font-weight:700;color:#4338ca;margin-bottom:6px;">🧪 Hormoni de verificat (analize)</div>
+      ${data.hormoni.hormoni_de_verificat.map((h: string) => `<p style="margin-top:3px;">• ${h}</p>`).join('')}
+    </div>` : ''}
+  </div>` : ''}
+
+  <!-- SOMN -->
+  ${data.somn ? `
+  <div class="section">
+    <div class="section-title">😴 Somn</div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+      <p>${data.somn.evaluare || '—'}</p>
+      ${(data.somn.protocoale || []).map((p: string) => `<p style="margin-top:4px;">🌙 ${p}</p>`).join('')}
+      <div style="margin-top:8px;">
+        ${data.somn.ora_culcare ? `<span style="font-size:9px;color:#15803d;background:#dcfce7;padding:2px 8px;border-radius:10px;margin-right:6px;">🕙 ${data.somn.ora_culcare}</span>` : ''}
+        ${data.somn.suplimente_somn ? `<span style="font-size:9px;color:#6b7280;background:#f3f4f6;padding:2px 8px;border-radius:10px;">💊 ${data.somn.suplimente_somn}</span>` : ''}
+      </div>
+    </div>
+  </div>` : ''}
+
+  <!-- MENTAL -->
+  ${data.sanatate_mintala ? `
+  <div class="section">
+    <div class="section-title">🧠 Mental</div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <p>${data.sanatate_mintala.evaluare || '—'}</p>
+      ${(data.sanatate_mintala.practici || []).map((p: string) => `<p style="margin-top:4px;">→ ${p}</p>`).join('')}
+      ${data.sanatate_mintala.viata_sociala ? `<p style="margin-top:8px;background:#f3e8ff;border-radius:6px;padding:8px;font-size:10px;">${data.sanatate_mintala.viata_sociala}</p>` : ''}
+    </div>
+    ${data.lumina_naturala ? `
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px;">☀️ Lumină naturală & Vitamina D</div>
+      <p>${data.lumina_naturala.recomandare || '—'}</p>
+      ${data.lumina_naturala.vitamina_d_status ? `<p style="margin-top:4px;font-size:10px;color:#92400e;">Status Vit. D: ${data.lumina_naturala.vitamina_d_status}</p>` : ''}
+    </div>` : ''}
+    ${data.conexiune_sociala ? `
+    <div style="background:#fdf2f8;border:1px solid #fbcfe8;border-radius:8px;padding:12px;">
+      <div style="font-size:10px;font-weight:700;color:#be185d;margin-bottom:4px;">👥 Conexiune socială</div>
+      <p>${data.conexiune_sociala.evaluare || '—'}</p>
+      ${data.conexiune_sociala.actiune_saptamana ? `<p style="margin-top:4px;font-size:10px;color:#be185d;font-weight:600;">✅ ${data.conexiune_sociala.actiune_saptamana}</p>` : ''}
+    </div>` : ''}
+  </div>` : ''}
+
+  <!-- SEXUAL -->
+  ${data.sanatate_sexuala ? `
+  <div class="section">
+    <div class="section-title">🌹 Sănătate Sexuală ${data.sanatate_sexuala.etapa_viata ? `<span style="font-size:9px;font-weight:600;color:#be185d;background:#fdf2f8;padding:2px 8px;border-radius:10px;text-transform:none;letter-spacing:0;margin-left:6px;">${data.sanatate_sexuala.etapa_viata}</span>` : ''}</div>
+    <p style="font-size:9px;color:#9ca3af;margin-bottom:8px;">🌹 Informații educaționale bazate pe studii clinice. Consultați un specialist pentru probleme specifice.</p>
+    ${data.sanatate_sexuala.frecventa_recomandata ? `
+    <div style="background:#fdf2f8;border:1px solid #fbcfe8;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#be185d;margin-bottom:4px;">💕 Frecvență recomandată pentru profilul tău</div>
+      <p style="font-weight:600;">${data.sanatate_sexuala.frecventa_recomandata}</p>
+    </div>` : ''}
+    ${data.sanatate_sexuala.comparatie_populationala ? `
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#15803d;margin-bottom:4px;">📊 Context — nu ești singur(ă)</div>
+      <p>${data.sanatate_sexuala.comparatie_populationala}</p>
+    </div>` : ''}
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+      <p>${data.sanatate_sexuala.evaluare || '—'}</p>
+      ${(data.sanatate_sexuala.recomandari || []).map((r: string) => `<p style="margin-top:4px;">🌿 ${r}</p>`).join('')}
+    </div>
+  </div>` : ''}
+
+  <!-- ANTI-AGING -->
+  ${data.anti_aging ? `
+  <div class="section">
+    <div class="section-title">⏳ Anti-aging</div>
+    <div style="background:#f3e8ff;border:1px solid #d8b4fe;border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#7c3aed;margin-bottom:4px;">⏳ Vârstă biologică estimată</div>
+      <p style="font-weight:700;font-size:13px;">${data.anti_aging.varsta_biologica || '—'}</p>
+    </div>
+    <div class="grid2">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;color:#15803d;margin-bottom:4px;">✓ Pro-longevitate</div>
+        ${(data.anti_aging.prioritati || []).map((p: string) => `<p style="margin-top:3px;">• ${p}</p>`).join('')}
+      </div>
+      <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px;">
+        <div style="font-size:10px;font-weight:700;color:#4338ca;margin-bottom:4px;">📋 Analize recomandate</div>
+        ${(data.anti_aging.analize_recomandate || []).map((a: string) => `<p style="margin-top:3px;">• ${a}</p>`).join('')}
+      </div>
+    </div>
+  </div>` : ''}
+
+  <!-- MIT DEMOLAT -->
+  ${data.mit_demontat ? `
+  <div class="section">
+    <div class="section-title">🚫 Mit Demolat</div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px;">
+      <p>${data.mit_demontat}</p>
+    </div>
+  </div>` : ''}
+
   <!-- JURNAL ULTIMELE 14 ZILE -->
   ${jurnal.length > 0 ? `
   <div class="section">
