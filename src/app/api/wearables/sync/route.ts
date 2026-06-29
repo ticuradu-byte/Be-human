@@ -86,6 +86,7 @@ async function getWithingsData(userId: string, supabase: any) {
     .from('utilizatori').select('profil_complet').eq('id', userId).single()
 
   const token = user?.profil_complet?.withings_token
+  console.log('[Withings] token exists:', !!token, 'access_token:', !!token?.access_token)
   if (!token?.access_token) return null
 
   let accessToken = token.access_token
@@ -111,7 +112,9 @@ async function getWithingsData(userId: string, supabase: any) {
   }
 
   const now = Math.floor(Date.now() / 1000)
-  const acum30Zile = now - 30 * 24 * 60 * 60
+  // 180 zile, nu 30 — greutatea nu se cântărește zilnic ca pașii, o fereastră
+  // scurtă poate exclude complet ultima cântărire dacă userul nu s-a cântărit recent
+  const acum180Zile = now - 180 * 24 * 60 * 60
 
   // Măsurători: greutate, compoziție corporală, tensiune, puls (meastype 1,6,76,77,9,10,11)
   const measRes = await fetch('https://wbsapi.withings.net/measure', {
@@ -121,12 +124,16 @@ async function getWithingsData(userId: string, supabase: any) {
       action: 'getmeas',
       meastypes: '1,6,76,77,9,10,11',
       category: '1',
-      startdate: String(acum30Zile),
+      startdate: String(acum180Zile),
       enddate: String(now),
     }),
   })
   const measData = await measRes.json()
-  if (measData.status !== 0) return null
+  console.log('[Withings] measure status:', measData.status, 'grupuri gasite:', measData.body?.measuregrps?.length || 0)
+  if (measData.status !== 0) {
+    console.log('[Withings] eroare measure:', JSON.stringify(measData).slice(0, 300))
+    return null
+  }
 
   const peZi: Record<string, any> = {}
   for (const grp of (measData.body?.measuregrps || [])) {
@@ -152,7 +159,7 @@ async function getWithingsData(userId: string, supabase: any) {
       headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         action: 'getsummary',
-        startdateymd: formatYMD(acum30Zile),
+        startdateymd: formatYMD(acum180Zile),
         enddateymd: formatYMD(now),
       }),
     })
@@ -192,7 +199,7 @@ export async function GET(req: NextRequest) {
       spo2: null, temperatura: null, readiness: null,
       greutate: null, hidratare_ml: null, minute_active: null,
       tensiune_sistolica: null, tensiune_diastolica: null, puls: null,
-      masa_grasa_pct: null, masa_musculara_kg: null,
+      masa_grasa_pct: null, masa_musculara_kg: null, trend_greutate: null,
       zile: [], azi: null,
     }
 
@@ -216,6 +223,7 @@ export async function GET(req: NextRequest) {
     // Withings — greutate, compoziție corporală, tensiune, somn
     try {
       const withings = await getWithingsData(userId, supabase)
+      console.log('[Withings] rezultat azi:', JSON.stringify(withings?.azi))
       if (withings?.azi) {
         rezultat.surse_active.push('Withings')
         // Greutate/compoziție: Withings (cântar smart) e mai precis decât Google Fit pentru asta
@@ -229,8 +237,17 @@ export async function GET(req: NextRequest) {
         if (!rezultat.ore_somn && withings.azi.ore_somn) rezultat.ore_somn = withings.azi.ore_somn
         // Dacă nu avem deloc zile de la Google Fit, folosim zilele Withings ca bază
         if (rezultat.zile.length === 0) rezultat.zile = withings.zile
+        // Trend greutate — diferența între prima și ultima măsurătoare din fereastra de 180 zile
+        if (withings.zile?.length > 1) {
+          const primaG = withings.zile.find((z: any) => z.greutate)?.greutate
+          const ultimaG = [...withings.zile].reverse().find((z: any) => z.greutate)?.greutate
+          if (primaG && ultimaG && primaG !== ultimaG) {
+            rezultat.trend_greutate = `${primaG}kg → ${ultimaG}kg (${ultimaG > primaG ? '+' : ''}${Math.round((ultimaG - primaG) * 10) / 10}kg)`
+          }
+        }
       }
-    } catch(e) { console.log('Withings error:', e) }
+    } catch(e: any) { console.log('[Withings] EROARE:', e?.message || e) }
+
 
     // Text pentru analiză
     const linii: string[] = []
@@ -242,6 +259,7 @@ export async function GET(req: NextRequest) {
       if (rezultat.minute_active) linii.push(`- Minute active: ${rezultat.minute_active} min`)
       if (rezultat.ore_somn) linii.push(`- Somn: ${rezultat.ore_somn}h`)
       if (rezultat.greutate) linii.push(`- Greutate: ${rezultat.greutate} kg`)
+      if (rezultat.trend_greutate) linii.push(`- Trend greutate (180 zile): ${rezultat.trend_greutate}`)
       if (rezultat.masa_grasa_pct) linii.push(`- Masă grasă: ${rezultat.masa_grasa_pct}%`)
       if (rezultat.masa_musculara_kg) linii.push(`- Masă musculară: ${rezultat.masa_musculara_kg} kg`)
       if (rezultat.tensiune_sistolica && rezultat.tensiune_diastolica) linii.push(`- Tensiune: ${rezultat.tensiune_sistolica}/${rezultat.tensiune_diastolica} mmHg`)
