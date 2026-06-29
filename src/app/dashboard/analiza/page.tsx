@@ -74,6 +74,8 @@ Câmpul hormoni.optimizare_naturala este OBLIGATORIU: minim 3 sfaturi concrete d
 
 Câmpul sanatate_mintala.practici trebuie să conțină MINIM 5 practici diverse și dovedite științific (somn, mișcare, respirație, conexiune socială, expunere la natură/lumină, mindfulness, jurnal de recunoștință) — nu doar 2.
 
+ANALIZE MULTIPLE / TREND: dacă în datele de analize medicale apare textul "ATENȚIE: există MULTIPLE analize din date diferite" cu mai multe buletine etichetate cu dată, FOLOSEȘTE valorile din buletinul marcat "CEL MAI RECENT" ca status ACTUAL al pacientului (acelea intră în scor_wellness, alerte_medicale, diagnostic_functional). NU ignora însă buletinele mai vechi — menționează explicit evoluția/trendul în diagnostic_functional (ex. "Colesterolul a crescut de la 262 la 283 mg/dL în 20 de zile" sau "Glicemia s-a îmbunătățit ușor"). Dacă o valoare s-a deteriorat semnificativ între cele două date, tratează asta ca un semnal de alertă suplimentar în alerte_medicale.
+
 Câmpul sanatate_sexuala.etapa_viata este OBLIGATORIU: identifică etapa de viață relevantă din vârsta și sexul din profil (ex. "Adult tânăr" sub 35 ani, "Adult activ" 35-44 ani, "Andropauză" pentru bărbați 45+, "Perimenopauză"/"Menopauză" pentru femei 45+/55+) și adaptează evaluarea și recomandările specific acestei etape — nu generic pentru toate vârstele.
 
 Câmpul sanatate_sexuala.comparatie_populationala este OBLIGATORIU: un mesaj de normalizare bazat pe date populaționale pentru grupa de vârstă/sex din profil (ex. "Frecvența ta este în intervalul normal raportat pentru bărbați 45-50 ani"). Scopul este reducerea anxietății prin context, NU presiune sau judecată.
@@ -212,9 +214,8 @@ function extrageParametruMedical(text: string, label: string, labelRegexBase: Re
   return null
 }
 
-function extrageAnalizeMedicale(textBrut: string): string {
-  if (!textBrut || textBrut.length < 200) return textBrut
-  // Elimină secțiunea de istoric ("evoluția în timp") — sursă de confuzie cu valori vechi
+function extrageDinBlocUnic(textBrut: string): string[] {
+  if (!textBrut || textBrut.length < 200) return []
   const evolutieIdx = textBrut.search(/iata\s+evolu[tț]ia\s+in\s+timp/i)
   const textCurent = evolutieIdx > -1 ? textBrut.slice(0, evolutieIdx) : textBrut
 
@@ -223,9 +224,62 @@ function extrageAnalizeMedicale(textBrut: string): string {
     const r = extrageParametruMedical(textCurent, label, regex)
     if (r) rezultate.push(r)
   }
+  return rezultate
+}
+
+function extrageDataDinNumeFisier(numeBloc: string): string {
+  // Caută un model de dată în numele fișierului: 2026_06_29, 2026-06-29, 29.06.2026 etc.
+  const m1 = numeBloc.match(/(\d{4})[_\-](\d{2})[_\-](\d{2})/)
+  if (m1) return `${m1[3]}.${m1[2]}.${m1[1]}`
+  const m2 = numeBloc.match(/(\d{2})[.\-](\d{2})[.\-](\d{4})/)
+  if (m2) return `${m2[1]}.${m2[2]}.${m2[3]}`
+  return numeBloc
+}
+
+function extrageAnalizeMedicale(textBrut: string): string {
+  if (!textBrut || textBrut.length < 200) return textBrut
+
+  // Detectează markerii "=== Buletin ... ===" care separă fișiere uploadate distinct.
+  // Dacă există MAI MULTE buletine, le procesăm separat și le prezentăm cu dată,
+  // ca AI-ul să poată compara valori (trend), nu doar să citească primul găsit.
+  const markerRegex = /===\s*(.+?)\s*===/g
+  const markere: { titlu: string; index: number }[] = []
+  let mm: RegExpExecArray | null
+  while ((mm = markerRegex.exec(textBrut)) !== null) {
+    markere.push({ titlu: mm[1], index: mm.index })
+  }
+
+  if (markere.length >= 2) {
+    const blocuri: { eticheta: string; rezultate: string[] }[] = []
+    for (let i = 0; i < markere.length; i++) {
+      const start = markere[i].index
+      const end = i + 1 < markere.length ? markere[i + 1].index : textBrut.length
+      const blocText = textBrut.slice(start, end)
+      const rezultateBloc = extrageDinBlocUnic(blocText)
+      if (rezultateBloc.length > 0) {
+        const data = extrageDataDinNumeFisier(markere[i].titlu)
+        blocuri.push({ eticheta: `${data} (${markere[i].titlu})`, rezultate: rezultateBloc })
+      }
+    }
+    if (blocuri.length >= 2) {
+      // Cel mai recent bloc apare ULTIMUL în text (ordinea uploadului) — îl marcăm explicit
+      const parti = blocuri.map((b, i) =>
+        `📅 ${b.eticheta}${i === blocuri.length - 1 ? ' — CEL MAI RECENT' : ''}:\n${b.rezultate.join('\n')}`
+      )
+      return (
+        'ATENȚIE: există MULTIPLE analize din date diferite mai jos. Folosește valorile din cel ' +
+        'mai recent buletin ca status ACTUAL, dar COMPARĂ cu cele vechi și menționează explicit ' +
+        'evoluția/trendul (ce a crescut, ce a scăzut, ce s-a îmbunătățit).\n\n' +
+        parti.join('\n\n')
+      )
+    }
+  }
+
+  // Un singur buletin (sau format fără markere) — comportament normal
+  const rezultate = extrageDinBlocUnic(textBrut)
   if (rezultate.length >= 3) return rezultate.join('\n')
-  // Format necunoscut — trimitem un fragment mai mare decât înainte (1200→4000),
-  // ca să nu fie nevoie să "ghicească" AI-ul din cauza trunchierii premature
+  const evolutieIdx = textBrut.search(/iata\s+evolu[tț]ia\s+in\s+timp/i)
+  const textCurent = evolutieIdx > -1 ? textBrut.slice(0, evolutieIdx) : textBrut
   return textCurent.slice(0, 4000)
 }
 
