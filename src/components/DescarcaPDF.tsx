@@ -1,6 +1,5 @@
 'use client'
 // src/components/DescarcaPDF.tsx
-// Buton descărcare raport PDF — folosit în pagina istoric, cont și dashboard
 
 import { useState } from 'react'
 
@@ -32,21 +31,21 @@ export default function DescarcaPDF({
 
       const { html, filename } = await res.json()
 
-      // Deschide HTML în tab nou. Utilizatorul decide singur dacă
-      // vrea să printeze / să salveze ca PDF (Ctrl+P → Save as PDF).
-      // NU mai declanșăm automat dialogul de print.
+      // Deschide HTML în tab nou pentru print/save as PDF
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
       const url  = URL.createObjectURL(blob)
       const win  = window.open(url, '_blank')
 
       if (win) {
         win.onload = () => {
-          win.document.title = filename.replace('.pdf', '')
+          win.document.title = filename?.replace('.pdf', '') || 'Raport Be-Human'
+          // Declanșează automat dialogul de print (Ctrl+P)
+          // Utilizatorul alege "Save as PDF" în dialogul de print
+          setTimeout(() => win.print(), 500)
         }
       }
 
-      // Cleanup
-      setTimeout(() => URL.revokeObjectURL(url), 30000)
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
 
     } catch (e) {
       alert('Eroare la generarea raportului. Încearcă din nou.')
