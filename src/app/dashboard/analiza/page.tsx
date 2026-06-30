@@ -562,7 +562,7 @@ Scor: ${a.scor_wellness}/100 | ${a.rezultat_json?.urmatorul_pas?.slice(0, 80) ||
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
-          max_tokens: 5000,
+          max_tokens: 8000,
           system: systemPrompt,
           messages: [{ role: 'user', content: 'Analizează datele mele. JSON OBLIGATORIU să conțină TOATE câmpurile din schemă inclusiv: micro_actiune_azi, lumina_naturala, conexiune_sociala, sanatate_sexuala. Completează cu recomandări generale dacă lipsesc datele specifice.' }],
         }),
