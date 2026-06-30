@@ -236,6 +236,23 @@ function extrageDataDinNumeFisier(numeBloc: string): string {
   return numeBloc
 }
 
+// Extrage DATA REALĂ a analizei din conținutul PDF-ului (nu din numele fișierului —
+// numele poate fi greșit/arbitrar, ex. un fișier salvat ca "...2026_06_09.pdf" poate
+// conține de fapt o analiză din 25.02.2026). Caută explicit "Data - ora recoltare"
+// sau "Data - ora cerere", care sunt câmpurile standard din buletinele românești.
+function extrageDataDinContinut(text: string): string | null {
+  const m = text.match(/Data\s*-?\s*ora\s*(?:recoltare|cerere)\s*:?\s*(\d{2})[.\-](\d{2})[.\-](\d{4})/i)
+  if (m) return `${m[1]}.${m[2]}.${m[3]}`
+  return null
+}
+
+function dataLaTimestamp(dataStr: string): number {
+  // Convertește "DD.MM.YYYY" în timestamp, pentru sortare cronologică corectă
+  const m = dataStr.match(/(\d{2})\.(\d{2})\.(\d{4})/)
+  if (!m) return 0
+  return new Date(`${m[3]}-${m[2]}-${m[1]}`).getTime()
+}
+
 function extrageAnalizeMedicale(textBrut: string): string {
   if (!textBrut || textBrut.length < 200) return textBrut
 
@@ -250,26 +267,32 @@ function extrageAnalizeMedicale(textBrut: string): string {
   }
 
   if (markere.length >= 2) {
-    const blocuri: { eticheta: string; rezultate: string[] }[] = []
+    const blocuri: { eticheta: string; rezultate: string[]; timestamp: number }[] = []
     for (let i = 0; i < markere.length; i++) {
       const start = markere[i].index
       const end = i + 1 < markere.length ? markere[i + 1].index : textBrut.length
       const blocText = textBrut.slice(start, end)
       const rezultateBloc = extrageDinBlocUnic(blocText)
       if (rezultateBloc.length > 0) {
-        const data = extrageDataDinNumeFisier(markere[i].titlu)
-        blocuri.push({ eticheta: `${data} (${markere[i].titlu})`, rezultate: rezultateBloc })
+        // PRIORITATE: data reală din conținutul PDF-ului. Doar dacă nu se găsește,
+        // recurge la numele fișierului (poate fi greșit/arbitrar).
+        const dataConinut = extrageDataDinContinut(blocText)
+        const data = dataConinut || extrageDataDinNumeFisier(markere[i].titlu)
+        blocuri.push({ eticheta: `${data} (${markere[i].titlu})`, rezultate: rezultateBloc, timestamp: dataLaTimestamp(data) })
       }
     }
     if (blocuri.length >= 2) {
-      // Cel mai recent bloc apare ULTIMUL în text (ordinea uploadului) — îl marcăm explicit
+      // Sortare CRONOLOGICĂ reală (nu ordinea uploadului) — cel mai recent e
+      // determinat de data efectivă a analizei, nu de ordinea în care au fost încărcate
+      blocuri.sort((a, b) => a.timestamp - b.timestamp)
       const parti = blocuri.map((b, i) =>
         `📅 ${b.eticheta}${i === blocuri.length - 1 ? ' — CEL MAI RECENT' : ''}:\n${b.rezultate.join('\n')}`
       )
       return (
-        'ATENȚIE: există MULTIPLE analize din date diferite mai jos. Folosește valorile din cel ' +
-        'mai recent buletin ca status ACTUAL, dar COMPARĂ cu cele vechi și menționează explicit ' +
-        'evoluția/trendul (ce a crescut, ce a scăzut, ce s-a îmbunătățit).\n\n' +
+        'ATENȚIE: există MULTIPLE analize din date diferite mai jos, sortate cronologic. ' +
+        'Folosește valorile din cel mai recent buletin ca status ACTUAL, dar COMPARĂ cu cele ' +
+        'vechi și menționează explicit evoluția/trendul (ce a crescut, ce a scăzut, ce s-a ' +
+        'îmbunătățit) — calculează diferența de timp REALĂ dintre datele indicate.\n\n' +
         parti.join('\n\n')
       )
     }

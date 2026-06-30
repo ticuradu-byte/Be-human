@@ -112,9 +112,9 @@ async function getWithingsData(userId: string, supabase: any) {
   }
 
   const now = Math.floor(Date.now() / 1000)
-  // 180 zile, nu 30 — greutatea nu se cântărește zilnic ca pașii, o fereastră
+  // 365 zile, nu 30 — greutatea nu se cântărește zilnic ca pașii, o fereastră
   // scurtă poate exclude complet ultima cântărire dacă userul nu s-a cântărit recent
-  const acum180Zile = now - 180 * 24 * 60 * 60
+  const acum365Zile = now - 365 * 24 * 60 * 60
 
   // Măsurători: greutate, compoziție corporală, tensiune, puls (meastype 1,6,76,77,9,10,11)
   const measRes = await fetch('https://wbsapi.withings.net/measure', {
@@ -124,7 +124,7 @@ async function getWithingsData(userId: string, supabase: any) {
       action: 'getmeas',
       meastypes: '1,6,76,77,9,10,11',
       category: '1',
-      startdate: String(acum180Zile),
+      startdate: String(acum365Zile),
       enddate: String(now),
     }),
   })
@@ -159,7 +159,7 @@ async function getWithingsData(userId: string, supabase: any) {
       headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         action: 'getsummary',
-        startdateymd: formatYMD(acum180Zile),
+        startdateymd: formatYMD(acum365Zile),
         enddateymd: formatYMD(now),
       }),
     })
@@ -237,7 +237,7 @@ export async function GET(req: NextRequest) {
         if (!rezultat.ore_somn && withings.azi.ore_somn) rezultat.ore_somn = withings.azi.ore_somn
         // Dacă nu avem deloc zile de la Google Fit, folosim zilele Withings ca bază
         if (rezultat.zile.length === 0) rezultat.zile = withings.zile
-        // Trend greutate — diferența între prima și ultima măsurătoare din fereastra de 180 zile
+        // Trend greutate — diferența între prima și ultima măsurătoare din fereastra de 365 zile
         if (withings.zile?.length > 1) {
           const primaG = withings.zile.find((z: any) => z.greutate)?.greutate
           const ultimaG = [...withings.zile].reverse().find((z: any) => z.greutate)?.greutate
@@ -259,7 +259,7 @@ export async function GET(req: NextRequest) {
       if (rezultat.minute_active) linii.push(`- Minute active: ${rezultat.minute_active} min`)
       if (rezultat.ore_somn) linii.push(`- Somn: ${rezultat.ore_somn}h`)
       if (rezultat.greutate) linii.push(`- Greutate: ${rezultat.greutate} kg`)
-      if (rezultat.trend_greutate) linii.push(`- Trend greutate (180 zile): ${rezultat.trend_greutate}`)
+      if (rezultat.trend_greutate) linii.push(`- Trend greutate (12 luni): ${rezultat.trend_greutate}`)
       if (rezultat.masa_grasa_pct) linii.push(`- Masă grasă: ${rezultat.masa_grasa_pct}%`)
       if (rezultat.masa_musculara_kg) linii.push(`- Masă musculară: ${rezultat.masa_musculara_kg} kg`)
       if (rezultat.tensiune_sistolica && rezultat.tensiune_diastolica) linii.push(`- Tensiune: ${rezultat.tensiune_sistolica}/${rezultat.tensiune_diastolica} mmHg`)
