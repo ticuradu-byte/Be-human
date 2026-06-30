@@ -1,50 +1,105 @@
 export const dynamic = 'force-dynamic'
+export const maxDuration = 300 // 5 minute — necesar pentru analiza AI cu date multiple
 import { NextRequest, NextResponse } from 'next/server'
+
+// Listă parametri medicali cunoscuți, fiecare cu regex de identificare a etichetei.
+// Formatul real al buletinelor (Regina Maria și majoritatea laboratoarelor RO) e
+// "VALOARE ETICHETĂ UNITATE [INTERVAL]" — ex: "283 COLESTEROL TOTAL mg/dL [120-200]".
+// Căutăm eticheta, apoi numărul IMEDIAT ÎNAINTE (valoarea) și unitatea + intervalul
+// IMEDIAT DUPĂ. O etichetă poate apărea de mai multe ori (ex. ca titlu de secțiune
+// fără valoare) — încercăm toate aparițiile până găsim una cu un număr valid înainte.
+const PARAMETRI_MEDICALI: [string, RegExp][] = [
+  ['Colesterol total', /colesterol total/i],
+  ['HDL colesterol', /hdl colesterol/i],
+  ['LDL colesterol', /ldl colesterol/i],
+  ['Colesterol non-HDL', /colesterol non-hdl|nonhdl/i],
+  ['Trigliceride', /trigliceride/i],
+  ['Glicemie', /glucoza serica \(glicemie\)|glicemie/i],
+  ['HbA1c', /hemoglobina glicozilata|hb a1c/i],
+  ['Creatinina', /creatinina seric/i],
+  ['Uree', /\buree\b/i],
+  ['Acid uric', /acid uric/i],
+  ['Calciu', /calciu seric/i],
+  ['Magneziu', /magneziu seric/i],
+  ['Potasiu', /potasiu seric/i],
+  ['Sodiu', /sodiu seric/i],
+  ['Fier seric', /fier seric/i],
+  ['TSH', /\btsh\b/i],
+  ['FT4', /\bft4\b/i],
+  ['FT3', /\bft3\b/i],
+  ['Vitamina D', /(?:25-oh-)?vitamina d/i],
+  ['Hemoglobina', /hemoglobina \(hgb\)/i],
+  ['Hematocrit', /hematocrit/i],
+  ['Leucocite', /numar de leucocite/i],
+  ['Trombocite', /numar de trombocite/i],
+  ['VSH', /\bvsh\b/i],
+  ['ALT', /alaninaminotransferaza/i],
+  ['AST', /aspartataminotransferaza/i],
+  ['Apolipoproteina A1', /apolipoproteina a1/i],
+  ['Apolipoproteina B', /apolipoproteina b/i],
+  ['Insulina', /\binsulina\b/i],
+  ['HOMA-IR', /homa-ir/i],
+  ['HOMA-B', /\bhoma b\b|homa-b/i],
+  ['eGFR', /rata estimata a filtrarii glomerulare|\begfr\b/i],
+  ['Creatinkinaza', /creatinkinaza/i],
+  ['Anti-TPO', /anticorpi anti-tpo/i],
+  ['Feritina', /\bferitina\b/i],
+  ['CRP', /proteina c reactiva|\bcrp\b/i],
+  ['Testosteron', /testosteron/i],
+  ['Cortizol', /\bcortizol\b/i],
+  ['Estradiol', /estradiol/i],
+  ['Progesteron', /progesteron/i],
+  ['Homocisteina', /homocisteina/i],
+]
+
+const UNITATE_REGEX = /(mg\/dL|mg\/dl|g\/L|g\/dL|ng\/mL|[µμ]?UI\/mL|mmol\/L|pg|fL|%|U\/L|mil\.\/[µμ]L|mii\/[µμ]L|[µμ]g\/dL|mm\/h|pmol\/L|ml\/min[^\s,]*|[µμ]U\/mL)/i
+
+function extrageParametru(text: string, label: string, labelRegexBase: RegExp): string | null {
+  const labelRegexGlobal = new RegExp(labelRegexBase.source, 'gi')
+  let m: RegExpExecArray | null
+  while ((m = labelRegexGlobal.exec(text)) !== null) {
+    const idx = m.index
+    const inainte = text.slice(Math.max(0, idx - 20), idx)
+    const numarMatch = inainte.match(/(\d+[.,]\d+|\d+)\s*$/)
+    if (numarMatch) {
+      const valoare = numarMatch[1]
+      const dupa = text.slice(idx, idx + m[0].length + 70)
+      const unitateMatch = dupa.match(UNITATE_REGEX)
+      const unitate = unitateMatch ? unitateMatch[0] : ''
+      const rangeMatch = dupa.match(/[\[<≥≤>]\s*[\d.,\s\-≥≤<>]+\)?\]?/)
+      const range = rangeMatch ? ' ' + rangeMatch[0].trim() : ''
+      return `${label}: ${valoare} ${unitate}${range}`.trim()
+    }
+    // eticheta a apărut fără valoare validă înainte — probabil titlu de secțiune; încearcă următoarea apariție
+  }
+  return null
+}
 
 // Compresie date medicale — extrage doar valorile numerice relevante
 function compressaMedicale(text: string): string {
   if (!text || text.length < 200) return text
 
-  // 1) Elimină complet secțiunea de ISTORIC ("evoluția în timp") — sursă principală
-  //    de confuzie: AI-ul putea citi o valoare veche (ex. dintr-un test din 2023)
-  //    și o confunda cu rezultatul curent.
-  const evolutieIdx = text.search(/iata\s+evolu[tț]ia\s+in\s+timp|evolu[tț]ia\s+in\s+timp\s+a\s+analizelor/i)
-  if (evolutieIdx > -1) text = text.slice(0, evolutieIdx)
+  // Elimină complet secțiunea de ISTORIC ("evoluția în timp") — sursă principală
+  // de confuzie: AI-ul putea citi o valoare veche (ex. dintr-un test din 2023)
+  // și o confunda cu rezultatul curent.
+  const evolutieIdx = text.search(/iata\s+evolu[tț]ia\s+in\s+timp/i)
+  const textCurent = evolutieIdx > -1 ? text.slice(0, evolutieIdx) : text
 
-  // 2) Prefixe de linii BOILERPLATE (praguri de interpretare, nu rezultate reale)
-  //    — acestea conțin des cuvinte cheie + unități, dar NU sunt valoarea pacientului.
-  const boilerplatePrefixe = /^\s*(pentru\b|optim\b|acceptabil\b|borderline\b|crescut\b|scazut\b|sc[aă]zut\b|moderat\b|usor\b|u[șş]or\b|foarte\b|interval de referin[tț]a|interpretare\b|status normal|status prediabet|status diabet|diagnosticul\b|deficit\b|nivel\b|barbati\s*:|b[aă]rba[tț]i\s*:|femei\s*:|trimestrul\b|calcul realizat|unde\s*:|scr\s*=|k\s*=|a\s*=|atentionare|aten[tț]ionare|conform ghidului|conform\b|homa-ir scor|homa-b\b|eGFR\s*:|persoane v[aă]rstince|explorarea metabolismului|nivelul fierului|rezultatele analizelor trebuie|examinarile\/unitatile|datele dumneavoastra|pentru vizualizarea|recomandare generala|^\d{2}\.\d{2}\.\d{4})/i
-
-  const lines = text.split('\n')
-
-  // 3) Liniile cu REZULTAT REAL: Nume parametru + valoare + unitate pe aceeași linie
-  //    (formatul standard al buletinelor: "COLESTEROL TOTAL 283 mg/dL [120 - 200]")
-  const esteRezultatReal = (line: string) => {
-    const l = line.toLowerCase()
-    const areKeyword = /(hemoglobina|feritina|vitamina|tsh|glucoza|colesterol|ldl|hdl|trigliceride|creatinina|uree|alt|ast|ggt|apob|crp|homocisteina|homa|insulina|cortizol|testosteron|estradiol|progesteron|fsh|lh|prolactina|tiroida|ft3|ft4|anti|egfr|vsh|fibrinogen|trombocite|leucocite|eritrocite|hematocrit|mcv|mch|acid uric|calciu|magneziu|potasiu|sodiu|fier)/i.test(l)
-    const areValoareUnitate = /\d+[.,]?\d*\s*(mg|g|dl|ng|ui|mmol|miu|pg|µmol|mm|bpm|%|kcal|kg|cm|ms|h\/|l\/)/i.test(line)
-    return areKeyword && areValoareUnitate && !boilerplatePrefixe.test(line)
+  const rezultate: string[] = []
+  for (const [label, regex] of PARAMETRI_MEDICALI) {
+    const rezultat = extrageParametru(textCurent, label, regex)
+    if (rezultat) rezultate.push(rezultat)
   }
 
-  const rezultateReale: string[] = []
-  const altRelevant: string[] = []
-
-  for (const line of lines) {
-    if (boilerplatePrefixe.test(line)) continue
-    const l = line.toLowerCase()
-    if (esteRezultatReal(line)) {
-      rezultateReale.push(line)
-    } else if (
-      /\d+[.,]?\d*\s*(mg|g|dl|ng|ui|mmol|miu|pg|µmol|mm|bpm|%|kcal|kg|cm|ms|h\/|l\/)/i.test(line) ||
-      /(hrv|pasi|somn|stres|vo2|spo2|tensiune|puls|hr |body battery)/i.test(l)
-    ) {
-      altRelevant.push(line)
-    }
+  // Extragerea direcționată a găsit suficiente valori — o folosim, e mult mai
+  // precisă decât orice filtrare generică pe linii.
+  if (rezultate.length >= 3) {
+    return rezultate.join('\n')
   }
 
-  // Rezultatele reale au prioritate absolută — niciodată tăiate de limita de linii
-  const compressed = [...rezultateReale, ...altRelevant].slice(0, 60).join('\n')
-  return compressed.length > 100 ? compressed : text.slice(0, 600)
+  // Fallback: format necunoscut (alt laborator) — trimitem un fragment din
+  // textul original (fără istoric) ca să nu pierdem complet datele.
+  return textCurent.slice(0, 3000)
 }
 
 export async function POST(req: NextRequest) {
