@@ -90,7 +90,13 @@ async function getWithingsData(userId: string, supabase: any) {
   if (!token?.access_token) return null
 
   let accessToken = token.access_token
-  if (token.refresh_token) {
+
+  // Funcție de refresh, apelată DOAR dacă tokenul curent eșuează — niciodată
+  // preventiv. La Withings, fiecare refresh INVALIDEAZĂ tokenul vechi și emite
+  // unul nou; dacă am face refresh la fiecare request, riscăm să stricăm un
+  // token perfect valid (sau să-l rotim fără să salvăm corect varianta nouă).
+  async function refreshToken(): Promise<string | null> {
+    if (!token.refresh_token) return null
     const refreshRes = await fetch('https://wbsapi.withings.net/v2/oauth2', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -103,12 +109,15 @@ async function getWithingsData(userId: string, supabase: any) {
       }),
     })
     const refreshed = await refreshRes.json()
+    console.log('[Withings] refresh status:', refreshed.status)
     if (refreshed.status === 0 && refreshed.body?.access_token) {
-      accessToken = refreshed.body.access_token
       await supabase.from('utilizatori').update({
         profil_complet: { ...(user?.profil_complet || {}), withings_token: refreshed.body }
       }).eq('id', userId)
+      return refreshed.body.access_token
     }
+    console.log('[Withings] refresh EȘUAT:', JSON.stringify(refreshed).slice(0, 200))
+    return null
   }
 
   const now = Math.floor(Date.now() / 1000)
@@ -116,22 +125,38 @@ async function getWithingsData(userId: string, supabase: any) {
   // scurtă poate exclude complet ultima cântărire dacă userul nu s-a cântărit recent
   const acum365Zile = now - 365 * 24 * 60 * 60
 
-  // Măsurători: greutate, compoziție corporală, tensiune, puls (meastype 1,6,76,77,9,10,11)
-  const measRes = await fetch('https://wbsapi.withings.net/measure', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      action: 'getmeas',
-      meastypes: '1,6,76,77,9,10,11',
-      category: '1',
-      startdate: String(acum365Zile),
-      enddate: String(now),
-    }),
-  })
-  const measData = await measRes.json()
-  console.log('[Withings] measure status:', measData.status, 'grupuri gasite:', measData.body?.measuregrps?.length || 0)
+  async function getMeasuri(token: string) {
+    const res = await fetch('https://wbsapi.withings.net/measure', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        action: 'getmeas',
+        meastypes: '1,6,76,77,9,10,11',
+        category: '1',
+        startdate: String(acum365Zile),
+        enddate: String(now),
+      }),
+    })
+    return res.json()
+  }
+
+  // Prima încercare — cu tokenul existent, fără refresh preventiv
+  let measData = await getMeasuri(accessToken)
+  console.log('[Withings] measure status (încercare 1):', measData.status, 'grupuri:', measData.body?.measuregrps?.length || 0)
+
+  // Token expirat/invalid (status 401 sau coduri specifice Withings de auth eșuată) — refresh + retry o singură dată
+  if (measData.status === 401 || measData.error?.toLowerCase?.().includes('invalid_token') || measData.error?.toLowerCase?.().includes('token')) {
+    console.log('[Withings] token invalid la prima încercare, refresh...')
+    const tokenNou = await refreshToken()
+    if (tokenNou) {
+      accessToken = tokenNou
+      measData = await getMeasuri(accessToken)
+      console.log('[Withings] measure status (încercare 2, după refresh):', measData.status)
+    }
+  }
+
   if (measData.status !== 0) {
-    console.log('[Withings] eroare measure:', JSON.stringify(measData).slice(0, 300))
+    console.log('[Withings] eroare measure finală:', JSON.stringify(measData).slice(0, 300))
     return null
   }
 

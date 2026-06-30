@@ -26,3 +26,6 @@ yarn-error.log*
 .vercel
 android/
 fix_*.js
+
+.vercel
+.env*
